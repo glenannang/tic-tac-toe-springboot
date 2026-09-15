@@ -13,9 +13,6 @@ public class Player {
     @Column("player_id")
     private UUID playerId;
 
-    @Column("username")
-    private String username;
-
     @Column("wins")
     private int wins;
 
@@ -28,6 +25,17 @@ public class Player {
     @Column("games_played")
     private int gamesPlayed;
 
+    @Column("abandoned_games")
+    private int abandonedGames;
+
+    public int getAbandonedGames() {
+        return abandonedGames;
+    }
+
+    public void setAbandonedGames(int abandonedGames) {
+        this.abandonedGames = abandonedGames;
+    }
+
     public Player() {
     }
 
@@ -37,14 +45,6 @@ public class Player {
 
     public void setPlayerId(UUID playerId) {
         this.playerId = playerId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public int getWins() {

@@ -44,9 +44,11 @@ CREATE TABLE IF NOT EXISTS moves_by_game (
 
 CREATE TABLE IF NOT EXISTS players (
                                        player_id uuid PRIMARY KEY,
-                                       username text,
+                                       games_played int,
+                                       abandoned_games int,
                                        wins int,
                                        losses int,
                                        draws int,
-                                       games_played int
+
+
 );
