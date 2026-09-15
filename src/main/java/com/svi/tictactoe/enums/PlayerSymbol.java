@@ -1,6 +1,6 @@
 package com.svi.tictactoe.enums;
 
-public enum PlayerMark {
+public enum PlayerSymbol {
     X,
     O
 }

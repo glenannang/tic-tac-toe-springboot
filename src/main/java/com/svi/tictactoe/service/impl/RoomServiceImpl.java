@@ -1,12 +1,15 @@
 package com.svi.tictactoe.service.impl;
 
+import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.request.JoinRoomRequest;
-import com.svi.tictactoe.dto.response.JoinRoomResponse;
+import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.entity.Room;
-import com.svi.tictactoe.enums.PlayerMark;
+import com.svi.tictactoe.enums.PlayerSymbol;
 import com.svi.tictactoe.enums.RoomStatus;
 import com.svi.tictactoe.exception.PlayerAlreadyInRoomException;
-import com.svi.tictactoe.exception.RoomFullException;
+import com.svi.tictactoe.exception.RoomAlreadyExistsException;
+import com.svi.tictactoe.exception.RoomDoesNotExistException;
+import com.svi.tictactoe.exception.RoomUnavailableException;
 import com.svi.tictactoe.mapper.RoomMapper;
 import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.repository.RoomRepository;
@@ -30,22 +33,36 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public JoinRoomResponse joinRoom(String roomCode, JoinRoomRequest request) {
+    public RoomResponse createRoom(String roomCode, CreateRoomRequest request){
+        // CHECK IF ROOM ALREADY EXISTS
+        if (roomRepository.findById(roomCode).isPresent()) {
+            throw new RoomAlreadyExistsException("Room already exists.");
+        }
+
+        // IF ROOM DOES NOT EXIST YET
+
+        Room room= new Room();
+
+        room.setRoomCode(roomCode);
+        room.setHostPlayerId(request.getPlayerId());
+        room.setPlayerCount(1);
+        room.setStatus(RoomStatus.WAITING);
+        room.setCreatedAt(Instant.now());
+        room.setUpdatedAt(Instant.now());
+
+        roomRepository.save(room);
+
+        return roomMapper.toRoomResponse(room, request.getPlayerId(),PlayerSymbol.X,"Room created successfully.");
+
+    }
+
+
+    @Override
+    public RoomResponse joinRoom(String roomCode, JoinRoomRequest request) {
 
         // NO ROOM YET
         if (roomRepository.findById(roomCode).isEmpty()) {
-            Room room = new Room();
-
-            room.setRoomCode(roomCode);
-            room.setHostPlayerId(request.getPlayerId());
-            room.setPlayerCount(1);
-            room.setStatus(RoomStatus.WAITING);
-            room.setCreatedAt(Instant.now());
-            room.setUpdatedAt(Instant.now());
-
-            roomRepository.save(room);
-
-            return roomMapper.toJoinRoomResponse(room, request.getPlayerId(), PlayerMark.X);
+            throw new RoomDoesNotExistException("Room does not exist.");
         }
 
         //ROOM ALREADY EXISTS
@@ -61,18 +78,25 @@ public class RoomServiceImpl implements RoomService {
 
             room.setGuestPlayerId(request.getPlayerId());
             room.setPlayerCount(2);
-            room.setStatus(RoomStatus.FULL);
+            room.setStatus(RoomStatus.IN_GAME);
             room.setUpdatedAt(Instant.now());
 
             // insert creating a game here later
 
             roomRepository.save(room);
 
-            return roomMapper.toJoinRoomResponse(room, request.getPlayerId(), PlayerMark.O
+            return roomMapper.toRoomResponse(room, request.getPlayerId(), PlayerSymbol.O,"Room joined successfully."
             );
         }
+        // GAME IN PROGRESS
+        else if (room.getStatus() == RoomStatus.IN_GAME) {
 
-        // FULL STATE
-        throw new RoomFullException("Room is already full.");
+            throw new RoomUnavailableException("Cannot join. Room currently has an ongoing game.");
+
+        }
+        // REMATCH STATE
+        else {
+            throw new RoomUnavailableException("Cannot join. Room is currently in the rematch phase.");
+        }
     }
 }

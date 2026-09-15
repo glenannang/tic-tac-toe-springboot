@@ -1,17 +1,27 @@
 package com.svi.tictactoe.dto.response;
 
-import com.svi.tictactoe.enums.PlayerMark;
+
+import com.svi.tictactoe.enums.PlayerSymbol;
 import com.svi.tictactoe.enums.RoomStatus;
 
 import java.util.UUID;
 
-public class JoinRoomResponse {
+public class RoomResponse {
 
     private String roomCode;
     private UUID playerId;
-    private PlayerMark mark;
+    private PlayerSymbol symbol;
     private RoomStatus roomStatus;
     private UUID gameId;
+    private String message;
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     public String getRoomCode() {
         return roomCode;
@@ -29,12 +39,12 @@ public class JoinRoomResponse {
         this.playerId = playerId;
     }
 
-    public PlayerMark getMark() {
-        return mark;
+    public PlayerSymbol getSymbol() {
+        return symbol;
     }
 
-    public void setMark(PlayerMark mark) {
-        this.mark = mark;
+    public void setSymbol(PlayerSymbol mark) {
+        this.symbol = mark;
     }
 
     public RoomStatus getRoomStatus() {

@@ -1,9 +1,11 @@
 package com.svi.tictactoe.controller;
 
+import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.request.JoinRoomRequest;
-import com.svi.tictactoe.dto.response.JoinRoomResponse;
+import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.service.RoomService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,11 +19,22 @@ public class RoomController {
         this.roomService = roomService;
     }
 
-    @PostMapping("/{roomCode}/join")
-    public ResponseEntity<JoinRoomResponse> joinRoom(@PathVariable String roomCode, @Valid @RequestBody JoinRoomRequest request) {
+    @PostMapping ("/{roomCode}")
+    public ResponseEntity<RoomResponse> createRoom(@PathVariable String roomCode, @Valid @RequestBody CreateRoomRequest request) {
 
-        JoinRoomResponse response = roomService.joinRoom(roomCode, request);
+        RoomResponse response = roomService.createRoom(roomCode, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/{roomCode}/join")
+    public ResponseEntity<RoomResponse> joinRoom(@PathVariable String roomCode, @Valid @RequestBody JoinRoomRequest request) {
+
+        RoomResponse response = roomService.joinRoom(roomCode, request);
 
         return ResponseEntity.ok(response);
     }
+
+
+
 }

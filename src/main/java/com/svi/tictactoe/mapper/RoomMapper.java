@@ -1,8 +1,8 @@
 package com.svi.tictactoe.mapper;
 
-import com.svi.tictactoe.dto.response.JoinRoomResponse;
+import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.entity.Room;
-import com.svi.tictactoe.enums.PlayerMark;
+import com.svi.tictactoe.enums.PlayerSymbol;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -10,15 +10,16 @@ import java.util.UUID;
 @Component
 public class RoomMapper {
 
-    public JoinRoomResponse toJoinRoomResponse(Room room, UUID playerId, PlayerMark mark) {
+    public RoomResponse toRoomResponse(Room room, UUID playerId, PlayerSymbol mark, String message) {
 
-        JoinRoomResponse response = new JoinRoomResponse();
+        RoomResponse response = new RoomResponse();
 
         response.setRoomCode(room.getRoomCode());
         response.setPlayerId(playerId);
-        response.setMark(mark);
+        response.setSymbol(mark);
         response.setRoomStatus(room.getStatus());
         response.setGameId(room.getLatestGameId());
+        response.setMessage(message);
 
         return response;
     }
