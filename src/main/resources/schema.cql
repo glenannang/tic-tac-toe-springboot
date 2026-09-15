@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS moves_by_game (
                                              game_id uuid,
                                              move_number int,
                                              player_id uuid,
-                                             mark text,
+                                             symbol text,
                                              position int,
                                              created_at timestamp,
                                              PRIMARY KEY ((game_id), move_number)

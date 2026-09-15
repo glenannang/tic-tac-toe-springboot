@@ -2,7 +2,7 @@ package com.svi.tictactoe.entity;
 
 import com.svi.tictactoe.enums.GameResult;
 import com.svi.tictactoe.enums.GameStatus;
-import com.svi.tictactoe.enums.PlayerMark;
+import com.svi.tictactoe.enums.PlayerSymbol;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
@@ -33,7 +33,7 @@ public class Game {
     private GameStatus status;
 
     @Column("next_turn")
-    private PlayerMark nextTurn;
+    private PlayerSymbol nextTurn;
 
     @Column("winner_id")
     private UUID winnerId;
@@ -101,11 +101,11 @@ public class Game {
         this.status = status;
     }
 
-    public PlayerMark getNextTurn() {
+    public PlayerSymbol getNextTurn() {
         return nextTurn;
     }
 
-    public void setNextTurn(PlayerMark nextTurn) {
+    public void setNextTurn(PlayerSymbol nextTurn) {
         this.nextTurn = nextTurn;
     }
 

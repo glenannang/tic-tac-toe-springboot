@@ -1,6 +1,7 @@
 package com.svi.tictactoe.entity;
 
-import com.svi.tictactoe.enums.PlayerMark;
+
+import com.svi.tictactoe.enums.PlayerSymbol;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
@@ -17,8 +18,8 @@ public class Move {
     @Column("player_id")
     private UUID playerId;
 
-    @Column("mark")
-    private PlayerMark mark;
+    @Column("symbol")
+    private PlayerSymbol symbol;
 
     @Column("position")
     private int position;
@@ -45,12 +46,12 @@ public class Move {
         this.playerId = playerId;
     }
 
-    public PlayerMark getMark() {
-        return mark;
+    public PlayerSymbol getSymbol() {
+        return symbol;
     }
 
-    public void setMark(PlayerMark mark) {
-        this.mark = mark;
+    public void setMark(PlayerSymbol symbol) {
+        this.symbol = symbol;
     }
 
     public int getPosition() {
