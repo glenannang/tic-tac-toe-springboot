@@ -1,6 +1,7 @@
 package com.svi.tictactoe.mapper;
 
 import com.svi.tictactoe.dto.response.RoomResponse;
+import com.svi.tictactoe.dto.response.RoomStatusResponse;
 import com.svi.tictactoe.entity.Room;
 import com.svi.tictactoe.enums.PlayerSymbol;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,16 @@ public class RoomMapper {
         response.setGameId(room.getLatestGameId());
         response.setMessage(message);
 
+        return response;
+    }
+
+    public RoomStatusResponse toRoomStatusResponse(Room room){
+
+        RoomStatusResponse response = new RoomStatusResponse();
+        response.setRoomCode(room.getRoomCode());
+        response.setStatus(room.getStatus());
+        response.setPlayerCount(room.getPlayerCount());
+        response.setLatestGameId(room.getLatestGameId());
         return response;
     }
 }
