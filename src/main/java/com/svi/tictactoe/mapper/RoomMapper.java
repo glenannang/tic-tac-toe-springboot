@@ -26,7 +26,6 @@ public class RoomMapper {
     }
 
     public RoomStatusResponse toRoomStatusResponse(Room room){
-
         RoomStatusResponse response = new RoomStatusResponse();
         response.setRoomCode(room.getRoomCode());
         response.setStatus(room.getStatus());

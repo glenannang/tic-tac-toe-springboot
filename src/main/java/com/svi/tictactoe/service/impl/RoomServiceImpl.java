@@ -3,13 +3,11 @@ package com.svi.tictactoe.service.impl;
 import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.request.JoinRoomRequest;
 import com.svi.tictactoe.dto.response.RoomResponse;
+import com.svi.tictactoe.dto.response.RoomStatusResponse;
 import com.svi.tictactoe.entity.Room;
 import com.svi.tictactoe.enums.PlayerSymbol;
 import com.svi.tictactoe.enums.RoomStatus;
-import com.svi.tictactoe.exception.PlayerAlreadyInRoomException;
-import com.svi.tictactoe.exception.RoomAlreadyExistsException;
-import com.svi.tictactoe.exception.RoomDoesNotExistException;
-import com.svi.tictactoe.exception.RoomUnavailableException;
+import com.svi.tictactoe.exception.*;
 import com.svi.tictactoe.mapper.RoomMapper;
 import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.repository.RoomRepository;
@@ -18,6 +16,7 @@ import com.svi.tictactoe.service.RoomService;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 public class RoomServiceImpl implements RoomService {
@@ -99,4 +98,24 @@ public class RoomServiceImpl implements RoomService {
             throw new RoomUnavailableException("Cannot join. Room is currently in the rematch phase.");
         }
     }
+
+    @Override
+    public RoomStatusResponse getRoomStatus(String roomCode){
+        Optional<Room> roomOptional = roomRepository.findById(roomCode);
+
+        if (roomOptional.isEmpty()) {
+            throw new RoomNotFoundException("Room does not exist.");
+        }
+
+        Room room = roomOptional.get();
+
+        return  roomMapper.toRoomStatusResponse(room);
+
+    }
+
+
+
+
+
+
 }

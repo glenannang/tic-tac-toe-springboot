@@ -3,6 +3,7 @@ package com.svi.tictactoe.controller;
 import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.request.JoinRoomRequest;
 import com.svi.tictactoe.dto.response.RoomResponse;
+import com.svi.tictactoe.dto.response.RoomStatusResponse;
 import com.svi.tictactoe.service.RoomService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,10 @@ public class RoomController {
         return ResponseEntity.ok(response);
     }
 
-
+    @GetMapping("/{roomCode}")
+    public ResponseEntity<RoomStatusResponse> getRoomStatus (@PathVariable String roomCode) {
+        RoomStatusResponse response = roomService.getRoomStatus(roomCode);
+        return ResponseEntity.ok(response);
+    }
 
 }
