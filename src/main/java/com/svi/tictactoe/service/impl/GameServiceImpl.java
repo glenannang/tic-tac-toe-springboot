@@ -6,6 +6,7 @@ import com.svi.tictactoe.entity.Game;
 import com.svi.tictactoe.entity.Move;
 import com.svi.tictactoe.entity.MoveKey;
 import com.svi.tictactoe.enums.GameStatus;
+import com.svi.tictactoe.enums.PlayerSymbol;
 import com.svi.tictactoe.exception.*;
 import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.repository.MoveRepository;
@@ -120,5 +121,14 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+
+    private PlayerSymbol determinePlayerMark(Game game, UUID playerId) {
+
+        if (playerId.equals(game.getPlayerXId())) {
+            return PlayerSymbol.X;
+        }
+
+        return PlayerSymbol.O;
+    }
 
 }
