@@ -28,13 +28,6 @@ public class Player {
     @Column("abandoned_games")
     private int abandonedGames;
 
-    public int getAbandonedGames() {
-        return abandonedGames;
-    }
-
-    public void setAbandonedGames(int abandonedGames) {
-        this.abandonedGames = abandonedGames;
-    }
 
     public Player() {
     }
@@ -77,6 +70,14 @@ public class Player {
 
     public void setGamesPlayed(int gamesPlayed) {
         this.gamesPlayed = gamesPlayed;
+    }
+
+    public int getAbandonedGames() {
+        return abandonedGames;
+    }
+
+    public void setAbandonedGames(int abandonedGames) {
+        this.abandonedGames = abandonedGames;
     }
 
 }

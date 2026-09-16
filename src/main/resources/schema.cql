@@ -49,6 +49,4 @@ CREATE TABLE IF NOT EXISTS players (
                                        wins int,
                                        losses int,
                                        draws int,
-
-
 );
