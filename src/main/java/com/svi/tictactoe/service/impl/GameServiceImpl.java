@@ -14,6 +14,7 @@ import com.svi.tictactoe.enums.PlayerSymbol;
 import com.svi.tictactoe.enums.RoomStatus;
 import com.svi.tictactoe.exception.*;
 import com.svi.tictactoe.mapper.GameMapper;
+import com.svi.tictactoe.mapper.MoveMapper;
 import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.repository.MoveRepository;
 import com.svi.tictactoe.repository.RoomRepository;
@@ -33,13 +34,19 @@ public class GameServiceImpl implements GameService {
     private final MoveRepository moveRepository;
     private final RoomRepository roomRepository;
     private final GameMapper gameMapper;
+    private final MoveMapper moveMapper;
 
-    public GameServiceImpl(GameRepository gameRepository, MoveRepository moveRepository, RoomRepository roomRepository, GameMapper gameMapper) {
+    public GameServiceImpl(GameRepository gameRepository,
+                           MoveRepository moveRepository,
+                           RoomRepository roomRepository,
+                           GameMapper gameMapper,
+                           MoveMapper moveMapper) {
 
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
         this.moveRepository = moveRepository;
         this.gameMapper = gameMapper;
+        this.moveMapper = moveMapper;
     }
 
 
@@ -78,33 +85,37 @@ public class GameServiceImpl implements GameService {
     }
 
     public AddMoveResponse addMove(UUID gameId, AddMoveRequest request){
-        //CHECK IF GAME EXISTS
-        Optional<Game> gameOptional = gameRepository.findById(gameId);
 
-        if (gameOptional.isEmpty()) {
-            throw new GameDoesNotExistException("Game does not exist.");
-        }
+        //check if game exists
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game does not exist."));
 
-        Game game = gameOptional.get();
         List <Move> existingMoves = moveRepository.findByKeyGameId(gameId);
 
-
-        validatePlayer(game, gameId); //CHECK IF PLAYER BELONGS TO THE GAME
-        validateGameInProgress(game); //Check if game is still on going
-        validatePositionAvailable(request.getPosition(), existingMoves);
-        validateTurn(game, request.getPlayerId(), existingMoves);
+        // Move validations
+        validatePlayer(game, request.getPlayerId());                        //Check if player belongs to the game
+        validateGameInProgress(game);                                       //Check if game is still on going
+        validatePositionAvailable(request.getPosition(), existingMoves);    // Check if position is available
+        validateTurn(game, request.getPlayerId(), existingMoves);           // Check if player's turn
 
         Move move = new Move();
 
-        PlayerSymbol symbol = determinePlayerSymbol(game, request.getPlayerId());
 
         MoveKey moveKey = new MoveKey();
         moveKey.setGameId(gameId);
         moveKey.setCreatedAt(Instant.now());
 
+        move.setKey(moveKey);
+        move.setPlayerId(request.getPlayerId());
+        PlayerSymbol symbol = determinePlayerSymbol(game, request.getPlayerId());
+        move.setSymbol(symbol);
+        move.setPosition(request.getPosition());
 
+        Move savedMove = moveRepository.save(move);
+        int moveNumber = existingMoves.size() + 1;
 
-        return null;
+        // check if the move cause a win/draw
+
+        return moveMapper.toAddMoveResponse(moveNumber, "Move saved successfully.");
 
     }
 
@@ -150,7 +161,7 @@ public class GameServiceImpl implements GameService {
         UUID expectedPlayerId;
 
         if (lastMove.getPlayerId().equals(game.getPlayerXId())) {
-            expectedPlayerId = game.getPlayerOId();
+            expectedPlayerId = game.getPlayerOId();  //  O's turn if last move belongs to player with x symbol
         } else {
             expectedPlayerId = game.getPlayerXId();
         }
