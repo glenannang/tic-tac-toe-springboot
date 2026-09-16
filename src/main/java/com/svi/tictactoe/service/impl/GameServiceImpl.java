@@ -4,6 +4,7 @@ import com.svi.tictactoe.dto.request.AddMoveRequest;
 import com.svi.tictactoe.dto.request.CreateGameRequest;
 import com.svi.tictactoe.dto.response.AddMoveResponse;
 import com.svi.tictactoe.dto.response.CreateGameResponse;
+import com.svi.tictactoe.engine.GameEngine;
 import com.svi.tictactoe.entity.Game;
 import com.svi.tictactoe.entity.Move;
 import com.svi.tictactoe.entity.MoveKey;
@@ -35,18 +36,21 @@ public class GameServiceImpl implements GameService {
     private final RoomRepository roomRepository;
     private final GameMapper gameMapper;
     private final MoveMapper moveMapper;
+    private final GameEngine gameEngine;
 
     public GameServiceImpl(GameRepository gameRepository,
                            MoveRepository moveRepository,
                            RoomRepository roomRepository,
                            GameMapper gameMapper,
-                           MoveMapper moveMapper) {
+                           MoveMapper moveMapper,
+                           GameEngine gameEngine) {
 
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
         this.moveRepository = moveRepository;
         this.gameMapper = gameMapper;
         this.moveMapper = moveMapper;
+        this.gameEngine = gameEngine;
     }
 
 
