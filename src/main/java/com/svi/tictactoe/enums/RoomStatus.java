@@ -2,6 +2,9 @@ package com.svi.tictactoe.enums;
 
 public enum RoomStatus {
     WAITING,
+    READY,
     IN_GAME,
-    REMATCH
+    REMATCH,
+    FINISHED,
+    CLOSED
 }
