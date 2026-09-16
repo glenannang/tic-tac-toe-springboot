@@ -67,6 +67,12 @@ public class GameServiceImpl implements GameService {
 
         Move move = new Move();
 
+        PlayerSymbol symbol = determinePlayerSymbol(game, request.getPlayerId());
+
+        MoveKey moveKey = new MoveKey();
+        moveKey.setGameId(gameId);
+        moveKey.setCreatedAt(Instant.now());
+
 
 
         return null;
@@ -126,7 +132,7 @@ public class GameServiceImpl implements GameService {
     }
 
 
-    private PlayerSymbol determinePlayerMark(Game game, UUID playerId) {
+    private PlayerSymbol determinePlayerSymbol(Game game, UUID playerId) {
 
         if (playerId.equals(game.getPlayerXId())) {
             return PlayerSymbol.X;
