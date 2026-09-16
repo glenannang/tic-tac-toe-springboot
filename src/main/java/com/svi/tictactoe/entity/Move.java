@@ -1,12 +1,10 @@
 package com.svi.tictactoe.entity;
 
-
 import com.svi.tictactoe.enums.PlayerSymbol;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Table("moves_by_game")
@@ -23,9 +21,6 @@ public class Move {
 
     @Column("position")
     private int position;
-
-    @Column("created_at")
-    private Instant createdAt;
 
     public Move() {
     }
@@ -50,7 +45,7 @@ public class Move {
         return symbol;
     }
 
-    public void setMark(PlayerSymbol symbol) {
+    public void setSymbol(PlayerSymbol symbol) {
         this.symbol = symbol;
     }
 
@@ -61,13 +56,4 @@ public class Move {
     public void setPosition(int position) {
         this.position = position;
     }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
 }

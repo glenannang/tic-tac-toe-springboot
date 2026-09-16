@@ -23,9 +23,9 @@ public class GameController {
         this.gameService  = gameService;
     }
     @PostMapping("/{gameId}/moves")
-    public ResponseEntity<RoomResponse> createRoom(@PathVariable UUID gameId, @Valid @RequestBody AddMoveRequest request) {
+    public ResponseEntity<RoomResponse> addMoves(@PathVariable UUID gameId, @Valid @RequestBody AddMoveRequest request) {
         AddMoveResponse response = gameService.addMove(gameId,request);
-            return null;
+        return null;
     }
 
 }

@@ -8,12 +8,11 @@ import org.springframework.data.cassandra.core.mapping.Table;
 import java.time.Instant;
 import java.util.UUID;
 
-@Table("rooms")
+@Table("rooms_by_code")
 public class Room {
 
     @PrimaryKey
-    @Column("room_code")
-    private String roomCode;
+    private RoomKey key;
 
     @Column("host_player_id")
     private UUID hostPlayerId;
@@ -21,17 +20,17 @@ public class Room {
     @Column("guest_player_id")
     private UUID guestPlayerId;
 
-    @Column("player_count")
-    private int playerCount;
-
-    @Column("latest_game_id")
-    private UUID latestGameId;
+    @Column("game_id")
+    private UUID gameId;
 
     @Column("status")
     private RoomStatus status;
 
-    @Column("created_at")
-    private Instant createdAt;
+    @Column("host_rematch")
+    private boolean hostRematch;
+
+    @Column("guest_rematch")
+    private boolean guestRematch;
 
     @Column("updated_at")
     private Instant updatedAt;
@@ -39,12 +38,12 @@ public class Room {
     public Room() {
     }
 
-    public String getRoomCode() {
-        return roomCode;
+    public RoomKey getKey() {
+        return key;
     }
 
-    public void setRoomCode(String roomCode) {
-        this.roomCode = roomCode;
+    public void setKey(RoomKey key) {
+        this.key = key;
     }
 
     public UUID getHostPlayerId() {
@@ -63,20 +62,12 @@ public class Room {
         this.guestPlayerId = guestPlayerId;
     }
 
-    public int getPlayerCount() {
-        return playerCount;
+    public UUID getGameId() {
+        return gameId;
     }
 
-    public void setPlayerCount(int playerCount) {
-        this.playerCount = playerCount;
-    }
-
-    public UUID getLatestGameId() {
-        return latestGameId;
-    }
-
-    public void setLatestGameId(UUID latestGameId) {
-        this.latestGameId = latestGameId;
+    public void setGameId(UUID gameId) {
+        this.gameId = gameId;
     }
 
     public RoomStatus getStatus() {
@@ -87,12 +78,20 @@ public class Room {
         this.status = status;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
+    public boolean isHostRematch() {
+        return hostRematch;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
+    public void setHostRematch(boolean hostRematch) {
+        this.hostRematch = hostRematch;
+    }
+
+    public boolean isGuestRematch() {
+        return guestRematch;
+    }
+
+    public void setGuestRematch(boolean guestRematch) {
+        this.guestRematch = guestRematch;
     }
 
     public Instant getUpdatedAt() {

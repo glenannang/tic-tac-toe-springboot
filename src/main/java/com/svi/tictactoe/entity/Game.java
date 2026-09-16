@@ -2,7 +2,6 @@ package com.svi.tictactoe.entity;
 
 import com.svi.tictactoe.enums.GameResult;
 import com.svi.tictactoe.enums.GameStatus;
-import com.svi.tictactoe.enums.PlayerSymbol;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
@@ -26,23 +25,14 @@ public class Game {
     @Column("player_o_id")
     private UUID playerOId;
 
-    @Column("board")
-    private String board;
-
     @Column("status")
     private GameStatus status;
-
-    @Column("next_turn")
-    private PlayerSymbol nextTurn;
-
-    @Column("winner_id")
-    private UUID winnerId;
 
     @Column("result")
     private GameResult result;
 
-    @Column("move_count")
-    private int moveCount;
+    @Column("winner_id")
+    private UUID winnerId;
 
     @Column("created_at")
     private Instant createdAt;
@@ -85,36 +75,12 @@ public class Game {
         this.playerOId = playerOId;
     }
 
-    public String getBoard() {
-        return board;
-    }
-
-    public void setBoard(String board) {
-        this.board = board;
-    }
-
     public GameStatus getStatus() {
         return status;
     }
 
     public void setStatus(GameStatus status) {
         this.status = status;
-    }
-
-    public PlayerSymbol getNextTurn() {
-        return nextTurn;
-    }
-
-    public void setNextTurn(PlayerSymbol nextTurn) {
-        this.nextTurn = nextTurn;
-    }
-
-    public UUID getWinnerId() {
-        return winnerId;
-    }
-
-    public void setWinnerId(UUID winnerId) {
-        this.winnerId = winnerId;
     }
 
     public GameResult getResult() {
@@ -125,12 +91,12 @@ public class Game {
         this.result = result;
     }
 
-    public int getMoveCount() {
-        return moveCount;
+    public UUID getWinnerId() {
+        return winnerId;
     }
 
-    public void setMoveCount(int moveCount) {
-        this.moveCount = moveCount;
+    public void setWinnerId(UUID winnerId) {
+        this.winnerId = winnerId;
     }
 
     public Instant getCreatedAt() {
