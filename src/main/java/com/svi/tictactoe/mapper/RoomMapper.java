@@ -15,11 +15,11 @@ public class RoomMapper {
 
         RoomResponse response = new RoomResponse();
 
-        response.setRoomCode(room.getRoomCode());
+        response.setRoomCode(room.getKey().getRoomCode());
         response.setPlayerId(playerId);
         response.setSymbol(mark);
         response.setRoomStatus(room.getStatus());
-        response.setGameId(room.getLatestGameId());
+        response.setGameId(room.getGameId());
         response.setMessage(message);
 
         return response;
@@ -27,10 +27,9 @@ public class RoomMapper {
 
     public RoomStatusResponse toRoomStatusResponse(Room room){
         RoomStatusResponse response = new RoomStatusResponse();
-        response.setRoomCode(room.getRoomCode());
+        response.setRoomCode(room.getKey().getRoomCode());
         response.setStatus(room.getStatus());
-        response.setPlayerCount(room.getPlayerCount());
-        response.setLatestGameId(room.getLatestGameId());
+        response.setLatestGameId(room.getGameId());
         return response;
     }
 }

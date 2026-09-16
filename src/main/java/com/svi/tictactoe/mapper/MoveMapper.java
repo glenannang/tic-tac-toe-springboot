@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class MoveMapper {
 
-    public AddMoveResponse toAddMoveResponse(Move move, String message){
+    public AddMoveResponse toAddMoveResponse(String message, int moveNumber){
 
         AddMoveResponse response = new AddMoveResponse();
         response.setMessage(message);
-        response.setMoveNumber(move.getKey().getMoveNumber());
+        response.setMoveNumber(moveNumber);
         return response;
     }
 

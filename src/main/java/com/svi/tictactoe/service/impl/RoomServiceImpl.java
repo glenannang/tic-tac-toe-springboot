@@ -5,6 +5,7 @@ import com.svi.tictactoe.dto.request.JoinRoomRequest;
 import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.dto.response.RoomStatusResponse;
 import com.svi.tictactoe.entity.Room;
+import com.svi.tictactoe.entity.RoomKey;
 import com.svi.tictactoe.enums.PlayerSymbol;
 import com.svi.tictactoe.enums.RoomStatus;
 import com.svi.tictactoe.exception.*;
@@ -36,19 +37,24 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomResponse createRoom(String roomCode, CreateRoomRequest request){
         // CHECK IF ROOM ALREADY EXISTS
-        if (roomRepository.findById(roomCode).isPresent()) {
+        if (roomRepository.findFirstByKeyRoomCode(roomCode).isPresent()) {
             throw new RoomAlreadyExistsException("Room already exists.");
         }
 
         // IF ROOM DOES NOT EXIST YET
 
-        Room room= new Room();
+        Instant now = Instant.now();
 
-        room.setRoomCode(roomCode);
+        RoomKey roomKey = new RoomKey();
+        roomKey.setRoomCode(roomCode);
+        roomKey.setCreatedAt(now);
+
+        Room room = new Room();
+        room.setKey(roomKey);
+
         room.setHostPlayerId(request.getPlayerId());
-        room.setPlayerCount(1);
         room.setStatus(RoomStatus.WAITING);
-        room.setCreatedAt(Instant.now());
+
         room.setUpdatedAt(Instant.now());
 
         roomRepository.save(room);
@@ -61,15 +67,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomResponse joinRoom(String roomCode, JoinRoomRequest request) {
 
-        // NO ROOM YET
-        if (roomRepository.findById(roomCode).isEmpty()) {
-            throw new RoomDoesNotExistException("Room does not exist.");
-        }
+        //get latest row with the given roomCode
+        Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
+                        new RoomDoesNotExistException("Room does not exist."));
 
-        //ROOM ALREADY EXISTS
-        Room room = roomRepository.findById(roomCode).get();
-
-        // CHECK IF SAME PLAYER IS TRYING TO JOIN
+        // prevents the same player to join
         if (room.getHostPlayerId().equals(request.getPlayerId())) {
             throw new PlayerAlreadyInRoomException("Player is already in the room.");
         }
@@ -78,14 +80,7 @@ public class RoomServiceImpl implements RoomService {
         if (room.getStatus() == RoomStatus.WAITING) {
 
             room.setGuestPlayerId(request.getPlayerId());
-            room.setPlayerCount(2);
-
-
-            // CREATE THE GAME
-            UUID gameId = gameService.createGame(roomCode,room.getHostPlayerId(),room.getGuestPlayerId());
-
-            room.setLatestGameId(gameId);
-            room.setStatus(RoomStatus.IN_GAME);
+            room.setStatus(RoomStatus.READY);
             room.setUpdatedAt(Instant.now());
             roomRepository.save(room);
 
@@ -106,14 +101,13 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomStatusResponse getRoomStatus(String roomCode){
-        Optional<Room> roomOptional = roomRepository.findById(roomCode);
+        Optional<Room> roomOptional = roomRepository.findFirstByKeyRoomCode(roomCode);
 
         if (roomOptional.isEmpty()) {
             throw new RoomDoesNotExistException("Room does not exist.");
         }
 
         Room room = roomOptional.get();
-
         return  roomMapper.toRoomStatusResponse(room);
 
     }
