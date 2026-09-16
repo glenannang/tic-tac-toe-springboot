@@ -10,6 +10,7 @@ import com.svi.tictactoe.entity.Move;
 import com.svi.tictactoe.entity.MoveKey;
 import com.svi.tictactoe.entity.Room;
 
+import com.svi.tictactoe.enums.GameResult;
 import com.svi.tictactoe.enums.GameStatus;
 import com.svi.tictactoe.enums.PlayerSymbol;
 import com.svi.tictactoe.enums.RoomStatus;
@@ -115,10 +116,28 @@ public class GameServiceImpl implements GameService {
         move.setPosition(request.getPosition());
 
         Move savedMove = moveRepository.save(move);
-        int moveNumber = existingMoves.size() + 1;
+        existingMoves.add(savedMove);
+        int moveNumber = existingMoves.size();
 
         // check if the move cause a win/draw
 
+        if (gameEngine.hasWon(existingMoves, symbol)) {
+            game.setStatus(GameStatus.FINISHED);
+            game.setResult(GameResult.WIN);
+            game.setWinnerId(request.getPlayerId());
+            game.setEndedAt(Instant.now());
+
+            gameRepository.save(game);
+
+        } else if (gameEngine.isDraw(existingMoves)) {
+            game.setStatus(GameStatus.FINISHED);
+            game.setResult(GameResult.DRAW);
+            game.setWinnerId(null);
+            game.setEndedAt(Instant.now());
+
+            gameRepository.save(game);
+        }
+        
         return moveMapper.toAddMoveResponse(moveNumber, "Move saved successfully.");
 
     }
