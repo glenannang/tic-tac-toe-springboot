@@ -1,12 +1,14 @@
 package com.svi.tictactoe.service;
 
 import com.svi.tictactoe.dto.request.AddMoveRequest;
+import com.svi.tictactoe.dto.request.CreateGameRequest;
 import com.svi.tictactoe.dto.response.AddMoveResponse;
+import com.svi.tictactoe.dto.response.CreateGameResponse;
 
 import java.util.UUID;
 
 public interface GameService {
 
-    UUID createGame(String roomCode);
+    CreateGameResponse createGame(CreateGameRequest request);
     AddMoveResponse addMove(UUID gameId,AddMoveRequest request);
 }

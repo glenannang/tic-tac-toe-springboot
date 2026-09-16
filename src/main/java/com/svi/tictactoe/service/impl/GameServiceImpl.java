@@ -1,7 +1,9 @@
 package com.svi.tictactoe.service.impl;
 
 import com.svi.tictactoe.dto.request.AddMoveRequest;
+import com.svi.tictactoe.dto.request.CreateGameRequest;
 import com.svi.tictactoe.dto.response.AddMoveResponse;
+import com.svi.tictactoe.dto.response.CreateGameResponse;
 import com.svi.tictactoe.entity.Game;
 import com.svi.tictactoe.entity.Move;
 import com.svi.tictactoe.entity.MoveKey;
@@ -11,6 +13,7 @@ import com.svi.tictactoe.enums.GameStatus;
 import com.svi.tictactoe.enums.PlayerSymbol;
 import com.svi.tictactoe.enums.RoomStatus;
 import com.svi.tictactoe.exception.*;
+import com.svi.tictactoe.mapper.GameMapper;
 import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.repository.MoveRepository;
 import com.svi.tictactoe.repository.RoomRepository;
@@ -29,19 +32,22 @@ public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
     private final MoveRepository moveRepository;
     private final RoomRepository roomRepository;
+    private final GameMapper gameMapper;
 
-    public GameServiceImpl(GameRepository gameRepository, MoveRepository moveRepository, RoomRepository roomRepository) {
+    public GameServiceImpl(GameRepository gameRepository, MoveRepository moveRepository, RoomRepository roomRepository, GameMapper gameMapper) {
 
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
         this.moveRepository = moveRepository;
+        this.gameMapper = gameMapper;
     }
+
 
     //generates a UUID and saves to the database
     @Override
-    public UUID createGame(String roomCode){
+    public CreateGameResponse createGame(CreateGameRequest request){
         //check if room exists
-        Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
+        Room room = roomRepository.findFirstByKeyRoomCode(request.getRoomCode()).orElseThrow(() ->
                         new RoomDoesNotExistException("Room does not exist."));
 
         if (room.getStatus() != RoomStatus.READY) {
@@ -53,15 +59,22 @@ public class GameServiceImpl implements GameService {
         Game game = new Game();
 
         game.setGameId(gameId);
-        game.setRoomCode(roomCode);
+        game.setRoomCode(request.getRoomCode());
         game.setPlayerXId(room.getHostPlayerId());
         game.setPlayerOId(room.getGuestPlayerId());
         game.setStatus(GameStatus.IN_PROGRESS);
         game.setCreatedAt(Instant.now());
 
-        gameRepository.save(game);
+        Game savedGame = gameRepository.save(game);
 
-        return gameId;
+        //update room record
+        room.setGameId(gameId);
+        room.setStatus(RoomStatus.IN_GAME);
+        room.setUpdatedAt(Instant.now());
+
+        roomRepository.save(room);
+
+        return gameMapper.toCreateGameResponse(savedGame, "Game created successfully.");
     }
 
     public AddMoveResponse addMove(UUID gameId, AddMoveRequest request){
