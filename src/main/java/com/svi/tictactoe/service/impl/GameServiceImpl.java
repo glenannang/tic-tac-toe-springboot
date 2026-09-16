@@ -29,6 +29,7 @@ public class GameServiceImpl implements GameService {
         game.setPlayerXId(playerXId);
         game.setPlayerOId(playerOId);
         game.setCreatedAt(Instant.now());
+
         gameRepository.save(game);
 
         return gameId;

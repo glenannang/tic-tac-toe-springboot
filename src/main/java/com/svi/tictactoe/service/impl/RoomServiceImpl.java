@@ -11,24 +11,26 @@ import com.svi.tictactoe.exception.*;
 import com.svi.tictactoe.mapper.RoomMapper;
 import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.repository.RoomRepository;
+import com.svi.tictactoe.service.GameService;
 import com.svi.tictactoe.service.RoomService;
 
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
-    private final GameRepository gameRepository;
     private final RoomMapper roomMapper;
+    private final GameService gameService;
 
-    public RoomServiceImpl(RoomRepository roomRepository, GameRepository gameRepository,RoomMapper roomMapper) {
+    public RoomServiceImpl(RoomRepository roomRepository, GameService gameService,RoomMapper roomMapper) {
         this.roomRepository = roomRepository;
-        this.gameRepository = gameRepository;
         this.roomMapper = roomMapper;
+        this.gameService= gameService;
     }
 
     @Override
@@ -79,7 +81,10 @@ public class RoomServiceImpl implements RoomService {
             room.setPlayerCount(2);
 
 
-            // insert creating a game here later
+            // CREATE THE GAME
+            UUID gameId = gameService.createGame(roomCode,room.getHostPlayerId(),room.getGuestPlayerId());
+
+            room.setLatestGameId(gameId);
             room.setStatus(RoomStatus.IN_GAME);
             room.setUpdatedAt(Instant.now());
             roomRepository.save(room);
