@@ -65,6 +65,10 @@ public class GameServiceImpl implements GameService {
         validatePositionAvailable(request.getPosition(), existingMoves);
         validateTurn(game, request.getPlayerId(), existingMoves);
 
+        Move move = new Move();
+
+
+
         return null;
 
     }

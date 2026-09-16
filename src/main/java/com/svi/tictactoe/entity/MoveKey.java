@@ -18,7 +18,7 @@ public class MoveKey implements Serializable {
     private UUID gameId;
 
     @PrimaryKeyColumn(
-            name = "move_number",
+            name = "created_at",
             ordinal = 0,
             type = PrimaryKeyType.CLUSTERED,
             ordering = Ordering.ASCENDING

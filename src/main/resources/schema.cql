@@ -34,13 +34,12 @@ CREATE TABLE IF NOT EXISTS games (
 
 CREATE TABLE IF NOT EXISTS moves_by_game (
                                              game_id uuid,
-                                             move_number int,
                                              player_id uuid,
                                              symbol text,
                                              position int,
                                              created_at timestamp,
-                                             PRIMARY KEY ((game_id), move_number)
-) WITH CLUSTERING ORDER BY (move_number ASC);
+                                             PRIMARY KEY ((game_id), created_at)
+) WITH CLUSTERING ORDER BY (created_at ASC);
 
 CREATE TABLE IF NOT EXISTS players (
                                        player_id uuid PRIMARY KEY,
