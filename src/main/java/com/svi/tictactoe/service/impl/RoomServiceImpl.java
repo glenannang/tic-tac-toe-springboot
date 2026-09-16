@@ -77,11 +77,11 @@ public class RoomServiceImpl implements RoomService {
 
             room.setGuestPlayerId(request.getPlayerId());
             room.setPlayerCount(2);
-            room.setStatus(RoomStatus.IN_GAME);
-            room.setUpdatedAt(Instant.now());
+
 
             // insert creating a game here later
-
+            room.setStatus(RoomStatus.IN_GAME);
+            room.setUpdatedAt(Instant.now());
             roomRepository.save(room);
 
             return roomMapper.toRoomResponse(room, request.getPlayerId(), PlayerSymbol.O,"Room joined successfully."
