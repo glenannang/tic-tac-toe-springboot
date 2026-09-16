@@ -6,6 +6,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyClass;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.UUID;
 
 @PrimaryKeyClass
@@ -23,7 +24,9 @@ public class MoveKey implements Serializable {
             type = PrimaryKeyType.CLUSTERED,
             ordering = Ordering.ASCENDING
     )
-    private int moveNumber;
+    private Instant createdAt;
+
+
 
     public MoveKey() {
     }
@@ -36,11 +39,13 @@ public class MoveKey implements Serializable {
         this.gameId = gameId;
     }
 
-    public int getMoveNumber() {
-        return moveNumber;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
-    public void setMoveNumber(int moveNumber) {
-        this.moveNumber = moveNumber;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
+
+
 }
