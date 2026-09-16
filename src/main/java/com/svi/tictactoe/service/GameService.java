@@ -7,6 +7,6 @@ import java.util.UUID;
 
 public interface GameService {
 
-    UUID createGame(String roomCode, UUID playerXId, UUID playerOId);
+    UUID createGame(String roomCode);
     AddMoveResponse addMove(UUID gameId,AddMoveRequest request);
 }

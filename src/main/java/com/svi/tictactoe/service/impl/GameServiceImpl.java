@@ -5,11 +5,16 @@ import com.svi.tictactoe.dto.response.AddMoveResponse;
 import com.svi.tictactoe.entity.Game;
 import com.svi.tictactoe.entity.Move;
 import com.svi.tictactoe.entity.MoveKey;
+import com.svi.tictactoe.entity.Room;
+
 import com.svi.tictactoe.enums.GameStatus;
 import com.svi.tictactoe.enums.PlayerSymbol;
+import com.svi.tictactoe.enums.RoomStatus;
 import com.svi.tictactoe.exception.*;
 import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.repository.MoveRepository;
+import com.svi.tictactoe.repository.RoomRepository;
+
 import com.svi.tictactoe.service.GameService;
 import org.springframework.stereotype.Service;
 
@@ -23,24 +28,35 @@ public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
     private final MoveRepository moveRepository;
+    private final RoomRepository roomRepository;
 
-    public GameServiceImpl(GameRepository gameRepository, MoveRepository moveRepository) {
+    public GameServiceImpl(GameRepository gameRepository, MoveRepository moveRepository, RoomRepository roomRepository) {
 
         this.gameRepository = gameRepository;
+        this.roomRepository = roomRepository;
         this.moveRepository = moveRepository;
     }
 
     //generates a UUID and saves to the database
     @Override
-    public UUID createGame(String roomCode, UUID playerXId, UUID playerOId){
+    public UUID createGame(String roomCode){
+        //check if room exists
+        Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
+                        new RoomDoesNotExistException("Room does not exist."));
+
+        if (room.getStatus() != RoomStatus.READY) {
+            throw new RoomUnavailableException("Game can only be created when the room is ready with two players.");
+        }
+
 
         UUID gameId = UUID.randomUUID();
         Game game = new Game();
 
         game.setGameId(gameId);
         game.setRoomCode(roomCode);
-        game.setPlayerXId(playerXId);
-        game.setPlayerOId(playerOId);
+        game.setPlayerXId(room.getHostPlayerId());
+        game.setPlayerOId(room.getGuestPlayerId());
+        game.setStatus(GameStatus.IN_PROGRESS);
         game.setCreatedAt(Instant.now());
 
         gameRepository.save(game);
