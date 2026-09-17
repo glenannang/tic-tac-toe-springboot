@@ -1,5 +1,6 @@
 package com.svi.tictactoe.entity;
 
+import com.svi.tictactoe.enums.PlayerGameResult;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;

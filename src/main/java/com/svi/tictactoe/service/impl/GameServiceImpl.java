@@ -8,10 +8,7 @@ import com.svi.tictactoe.dto.response.GameStatusResponse;
 import com.svi.tictactoe.engine.GameEngine;
 import com.svi.tictactoe.entity.*;
 
-import com.svi.tictactoe.enums.GameResult;
-import com.svi.tictactoe.enums.GameStatus;
-import com.svi.tictactoe.enums.PlayerSymbol;
-import com.svi.tictactoe.enums.RoomStatus;
+import com.svi.tictactoe.enums.*;
 import com.svi.tictactoe.exception.*;
 import com.svi.tictactoe.mapper.GameMapper;
 import com.svi.tictactoe.mapper.MoveMapper;
@@ -111,7 +108,6 @@ public class GameServiceImpl implements GameService {
 
         Move move = new Move();
 
-
         MoveKey moveKey = new MoveKey();
         moveKey.setGameId(gameId);
         moveKey.setCreatedAt(Instant.now());
@@ -135,6 +131,9 @@ public class GameServiceImpl implements GameService {
             game.setEndedAt(Instant.now());
 
             gameRepository.save(game);
+            updateRoomForRematch(game);
+            updatePlayerGameResults(game, request.getPlayerId());
+
 
         } else if (gameEngine.isDraw(existingMoves)) {
             game.setStatus(GameStatus.FINISHED);
@@ -143,6 +142,10 @@ public class GameServiceImpl implements GameService {
             game.setEndedAt(Instant.now());
 
             gameRepository.save(game);
+            updateRoomForRematch(game);
+            updatePlayerGameResultsForDraw(game);
+
+
         }
         
         return moveMapper.toAddMoveResponse(moveNumber, "Move saved successfully.");
@@ -152,7 +155,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public GameStatusResponse getGameStatus(UUID gameId) {
 
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game not found."));
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game does not exist."));
 
         List<Move> moves = moveRepository.findByKeyGameId(gameId);
 
@@ -169,14 +172,6 @@ public class GameServiceImpl implements GameService {
         return gameMapper.toGameStatusResponse(game, board, nextTurn, moves.size()
         );
     }
-
-
-
-
-
-
-
-
 
 
     // HELPER FUNCTIONS FOR VALIDATING A MOVE REQUEST
@@ -242,10 +237,6 @@ public class GameServiceImpl implements GameService {
     }
 
 
-
-
-
-
     private void savePlayerGames(Game game) {
 
         PlayerGameKey playerXKey = new PlayerGameKey();
@@ -265,5 +256,63 @@ public class GameServiceImpl implements GameService {
         playerGameRepository.save(playerXGame);
         playerGameRepository.save(playerOGame);
     }
+
+    private void updatePlayerGameResults(Game game, UUID winnerId) {
+
+        PlayerGameKey winnerKey = new PlayerGameKey();
+        winnerKey.setPlayerId(winnerId);
+        winnerKey.setGameId(game.getGameId());
+
+        PlayerGame winnerGame = playerGameRepository.findById(winnerKey).orElseThrow();
+
+        UUID loserId = winnerId.equals(game.getPlayerXId())
+                ? game.getPlayerOId()
+                : game.getPlayerXId();
+
+        PlayerGameKey loserKey = new PlayerGameKey();
+        loserKey.setPlayerId(loserId);
+        loserKey.setGameId(game.getGameId());
+
+        PlayerGame loserGame = playerGameRepository.findById(loserKey).orElseThrow();
+
+        winnerGame.setResult(PlayerGameResult.WIN.name());
+        loserGame.setResult(PlayerGameResult.LOSS.name());
+
+        playerGameRepository.save(winnerGame);
+        playerGameRepository.save(loserGame);
+    }
+
+    private void updatePlayerGameResultsForDraw(Game game) {
+
+        PlayerGameKey playerXKey = new PlayerGameKey();
+        playerXKey.setPlayerId(game.getPlayerXId());
+        playerXKey.setGameId(game.getGameId());
+
+        PlayerGame playerXGame = playerGameRepository.findById(playerXKey).orElseThrow();
+
+        PlayerGameKey playerOKey = new PlayerGameKey();
+        playerOKey.setPlayerId(game.getPlayerOId());
+        playerOKey.setGameId(game.getGameId());
+
+        PlayerGame playerOGame = playerGameRepository.findById(playerOKey).orElseThrow();
+
+        playerXGame.setResult(PlayerGameResult.DRAW.name());
+        playerOGame.setResult(PlayerGameResult.DRAW.name());
+
+        playerGameRepository.save(playerXGame);
+        playerGameRepository.save(playerOGame);
+    }
+
+    private void updateRoomForRematch(Game game) {
+
+        Room room = roomRepository.findFirstByKeyRoomCode(game.getRoomCode()).orElseThrow(() ->
+                        new RoomDoesNotExistException("Room does not exist."));
+
+        room.setStatus(RoomStatus.REMATCH);
+        room.setUpdatedAt(Instant.now());
+        roomRepository.save(room);
+    }
+
+
 
 }
