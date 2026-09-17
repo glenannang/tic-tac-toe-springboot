@@ -1,5 +1,6 @@
 package com.svi.tictactoe.mapper;
 
+import com.svi.tictactoe.dto.response.LeaveRoomResponse;
 import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.dto.response.RoomStatusResponse;
 import com.svi.tictactoe.entity.Room;
@@ -30,6 +31,14 @@ public class RoomMapper {
         response.setRoomCode(room.getKey().getRoomCode());
         response.setStatus(room.getStatus());
         response.setLatestGameId(room.getGameId());
+        return response;
+    }
+
+    public LeaveRoomResponse toLeaveRoomResponse(String message) {
+
+        LeaveRoomResponse response = new LeaveRoomResponse();
+        response.setMessage(message);
+
         return response;
     }
 }

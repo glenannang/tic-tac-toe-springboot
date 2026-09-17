@@ -2,6 +2,8 @@ package com.svi.tictactoe.controller;
 
 import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.request.JoinRoomRequest;
+import com.svi.tictactoe.dto.request.LeaveRoomRequest;
+import com.svi.tictactoe.dto.response.LeaveRoomResponse;
 import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.dto.response.RoomStatusResponse;
 import com.svi.tictactoe.service.RoomService;
@@ -41,5 +43,14 @@ public class RoomController {
         RoomStatusResponse response = roomService.getRoomStatus(roomCode);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{roomCode}/leave")
+    public ResponseEntity<LeaveRoomResponse> leaveRoom(@PathVariable String roomCode, @Valid @RequestBody LeaveRoomRequest request) {
+
+        LeaveRoomResponse response = roomService.leaveRoom(roomCode, request);
+        return ResponseEntity.ok(response);
+    }
+
+
 
 }
