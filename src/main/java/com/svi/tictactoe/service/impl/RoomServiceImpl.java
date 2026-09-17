@@ -16,6 +16,7 @@ import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.repository.PlayerGameRepository;
 import com.svi.tictactoe.repository.RoomRepository;
 import com.svi.tictactoe.service.GameService;
+import com.svi.tictactoe.service.PlayerService;
 import com.svi.tictactoe.service.RoomService;
 
 import org.springframework.stereotype.Service;
@@ -30,26 +31,36 @@ public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
     private final GameService gameService;
+    private final PlayerService playerService;
     private final PlayerGameRepository playerGameRepository;
     private final GameRepository gameRepository;
 
-    public RoomServiceImpl(RoomRepository roomRepository, GameService gameService,RoomMapper roomMapper, PlayerGameRepository playerGameRepository, GameRepository gameRepository) {
+    public RoomServiceImpl(RoomRepository roomRepository,
+                           GameService gameService,
+                           PlayerService playerService,
+                           RoomMapper roomMapper,
+                           PlayerGameRepository playerGameRepository,
+                           GameRepository gameRepository) {
         this.roomRepository = roomRepository;
         this.roomMapper = roomMapper;
         this.gameService= gameService;
+        this.playerService=playerService;
         this.playerGameRepository = playerGameRepository;
         this.gameRepository = gameRepository;
     }
 
     @Override
     public RoomResponse createRoom(String roomCode, CreateRoomRequest request){
+
+        // Check if player exists
+        playerService.validatePlayerExists(request.getPlayerId());
+
         // CHECK IF ROOM ALREADY EXISTS
         if (roomRepository.findFirstByKeyRoomCode(roomCode).isPresent()) {
             throw new RoomAlreadyExistsException("Room already exists.");
         }
 
         // IF ROOM DOES NOT EXIST YET
-
         Instant now = Instant.now();
 
         RoomKey roomKey = new RoomKey();
@@ -73,6 +84,9 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomResponse joinRoom(String roomCode, JoinRoomRequest request) {
+
+        // Check if player exists
+        playerService.validatePlayerExists(request.getPlayerId());
 
         //get latest row with the given roomCode
         Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
@@ -123,6 +137,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public LeaveRoomResponse leaveRoom(String roomCode, LeaveRoomRequest request) {
+        // Check if player exists
+        playerService.validatePlayerExists(request.getPlayerId());
 
         Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
                         new RoomDoesNotExistException("Room does not exist."));
@@ -164,6 +180,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RematchResponse rematch(String roomCode, RematchRequest request) {
+        // Check if player exists
+        playerService.validatePlayerExists(request.getPlayerId());
 
         Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
                         new RoomDoesNotExistException("Room does not exist."));

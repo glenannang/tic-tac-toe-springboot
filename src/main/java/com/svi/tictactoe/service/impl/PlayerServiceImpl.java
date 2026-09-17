@@ -2,6 +2,7 @@ package com.svi.tictactoe.service.impl;
 
 import com.svi.tictactoe.dto.response.CreatePlayerResponse;
 import com.svi.tictactoe.entity.Player;
+import com.svi.tictactoe.exception.PlayerDoesNotExistException;
 import com.svi.tictactoe.mapper.PlayerMapper;
 import com.svi.tictactoe.repository.PlayerRepository;
 import com.svi.tictactoe.service.PlayerService;
@@ -36,4 +37,12 @@ public class PlayerServiceImpl implements PlayerService {
 
         return playerMapper.toCreatePlayerResponse(savedPlayer, "Player created successfully.");
     }
+
+    @Override
+    public void validatePlayerExists(UUID playerId) {
+        if (!playerRepository.existsById(playerId)) {
+            throw new PlayerDoesNotExistException("Player does not exist.");
+        }
+    }
+
 }

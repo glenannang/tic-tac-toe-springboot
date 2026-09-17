@@ -19,6 +19,7 @@ import com.svi.tictactoe.repository.PlayerGameRepository;
 import com.svi.tictactoe.repository.RoomRepository;
 
 import com.svi.tictactoe.service.GameService;
+import com.svi.tictactoe.service.PlayerService;
 import com.svi.tictactoe.util.BoardUtil;
 import org.springframework.stereotype.Service;
 
@@ -37,11 +38,13 @@ public class GameServiceImpl implements GameService {
     private final GameMapper gameMapper;
     private final MoveMapper moveMapper;
     private final GameEngine gameEngine;
+    private final PlayerService playerService;
 
     public GameServiceImpl(GameRepository gameRepository,
                            MoveRepository moveRepository,
                            RoomRepository roomRepository,
                            PlayerGameRepository playerGameRepository,
+                           PlayerService playerService,
                            GameMapper gameMapper,
                            MoveMapper moveMapper,
                            GameEngine gameEngine) {
@@ -53,6 +56,7 @@ public class GameServiceImpl implements GameService {
         this.gameMapper = gameMapper;
         this.moveMapper = moveMapper;
         this.gameEngine = gameEngine;
+        this.playerService = playerService;
     }
 
 
@@ -96,8 +100,11 @@ public class GameServiceImpl implements GameService {
 
     public AddMoveResponse addMove(UUID gameId, AddMoveRequest request){
 
+        playerService.validatePlayerExists(request.getPlayerId());
+
         //check if game exists
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game does not exist."));
+        Game game = gameRepository.findById(gameId).orElseThrow(()
+                -> new GameDoesNotExistException("Game does not exist."));
 
         List <Move> existingMoves = moveRepository.findByKeyGameId(gameId);
 
