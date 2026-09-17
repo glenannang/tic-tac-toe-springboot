@@ -3,7 +3,9 @@ package com.svi.tictactoe.service.impl;
 import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.request.JoinRoomRequest;
 import com.svi.tictactoe.dto.request.LeaveRoomRequest;
+import com.svi.tictactoe.dto.request.RematchRequest;
 import com.svi.tictactoe.dto.response.LeaveRoomResponse;
+import com.svi.tictactoe.dto.response.RematchResponse;
 import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.dto.response.RoomStatusResponse;
 import com.svi.tictactoe.entity.*;
@@ -160,6 +162,83 @@ public class RoomServiceImpl implements RoomService {
         return roomMapper.toLeaveRoomResponse("Room left successfully.");
     }
 
+    @Override
+    public RematchResponse rematch(String roomCode, RematchRequest request) {
+
+        Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
+                        new RoomDoesNotExistException("Room does not exist."));
+
+        if (room.getStatus() != RoomStatus.REMATCH) {
+            throw new RoomUnavailableException("Room is not available for a rematch.");
+        }
+
+        UUID playerId = request.getPlayerId();
+
+        boolean isHost = playerId.equals(room.getHostPlayerId());
+        boolean isGuest = playerId.equals(room.getGuestPlayerId());
+
+        if (!isHost && !isGuest) {
+            throw new PlayerNotInRoomException("Player does not belong to this room.");
+        }
+
+        if (isHost) {
+            room.setHostRematch(true);
+        } else {
+            room.setGuestRematch(true);
+        }
+
+        room.setUpdatedAt(Instant.now());
+        roomRepository.save(room);
+
+        // Only one player has accepted so far
+        if (!(room.isHostRematch() && room.isGuestRematch())) {
+            return roomMapper.toRematchResponse("Waiting for the other player to accept the rematch.", RoomStatus.REMATCH, null);
+        }
+
+        // both players accepted rematch
+        room.setStatus(RoomStatus.FINISHED);
+        room.setUpdatedAt(Instant.now());
+        roomRepository.save(room);
+
+        // create a new game
+        UUID newGameId = UUID.randomUUID();
+
+        Game newGame = new Game();
+
+        newGame.setGameId(newGameId);
+        newGame.setRoomCode(roomCode);
+        newGame.setPlayerXId(room.getHostPlayerId());
+        newGame.setPlayerOId(room.getGuestPlayerId());
+        newGame.setStatus(GameStatus.IN_PROGRESS);
+        newGame.setCreatedAt(Instant.now());
+
+        Game savedGame = gameRepository.save(newGame);
+
+        savePlayerGames(savedGame);
+
+        //add new room object
+        RoomKey newRoomKey = new RoomKey();
+        newRoomKey.setRoomCode(roomCode);
+        newRoomKey.setCreatedAt(Instant.now());
+
+        Room newRoom = new Room();
+
+        newRoom.setKey(newRoomKey);
+        newRoom.setHostPlayerId(room.getHostPlayerId());
+        newRoom.setGuestPlayerId(room.getGuestPlayerId());
+        newRoom.setGameId(newGameId);
+
+        newRoom.setStatus(RoomStatus.IN_GAME);
+
+        newRoom.setHostRematch(false);
+        newRoom.setGuestRematch(false);
+
+        newRoom.setUpdatedAt(Instant.now());
+
+        roomRepository.save(newRoom);
+        return roomMapper.toRematchResponse("Rematch started.", RoomStatus.IN_GAME, newGameId);
+    }
+
 
     private void updatePlayerGameResultsForIncomplete(Game game) {
 
@@ -177,6 +256,26 @@ public class RoomServiceImpl implements RoomService {
 
         playerXGame.setResult(PlayerGameResult.INCOMPLETE.name());
         playerOGame.setResult(PlayerGameResult.INCOMPLETE.name());
+
+        playerGameRepository.save(playerXGame);
+        playerGameRepository.save(playerOGame);
+    }
+
+    private void savePlayerGames(Game game) {
+
+        PlayerGameKey playerXKey = new PlayerGameKey();
+        playerXKey.setPlayerId(game.getPlayerXId());
+        playerXKey.setGameId(game.getGameId());
+
+        PlayerGame playerXGame = new PlayerGame();
+        playerXGame.setKey(playerXKey);
+
+        PlayerGameKey playerOKey = new PlayerGameKey();
+        playerOKey.setPlayerId(game.getPlayerOId());
+        playerOKey.setGameId(game.getGameId());
+
+        PlayerGame playerOGame = new PlayerGame();
+        playerOGame.setKey(playerOKey);
 
         playerGameRepository.save(playerXGame);
         playerGameRepository.save(playerOGame);

@@ -3,7 +3,9 @@ package com.svi.tictactoe.controller;
 import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.request.JoinRoomRequest;
 import com.svi.tictactoe.dto.request.LeaveRoomRequest;
+import com.svi.tictactoe.dto.request.RematchRequest;
 import com.svi.tictactoe.dto.response.LeaveRoomResponse;
+import com.svi.tictactoe.dto.response.RematchResponse;
 import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.dto.response.RoomStatusResponse;
 import com.svi.tictactoe.service.RoomService;
@@ -48,6 +50,11 @@ public class RoomController {
     public ResponseEntity<LeaveRoomResponse> leaveRoom(@PathVariable String roomCode, @Valid @RequestBody LeaveRoomRequest request) {
 
         LeaveRoomResponse response = roomService.leaveRoom(roomCode, request);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/{roomCode}/rematch")
+    public ResponseEntity<RematchResponse> rematch(@PathVariable String roomCode, @Valid @RequestBody RematchRequest request) {
+        RematchResponse response = roomService.rematch(roomCode, request);
         return ResponseEntity.ok(response);
     }
 
