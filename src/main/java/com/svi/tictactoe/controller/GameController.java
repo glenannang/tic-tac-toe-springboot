@@ -3,11 +3,7 @@ package com.svi.tictactoe.controller;
 
 import com.svi.tictactoe.dto.request.AddMoveRequest;
 import com.svi.tictactoe.dto.request.CreateGameRequest;
-import com.svi.tictactoe.dto.request.CreateRoomRequest;
-import com.svi.tictactoe.dto.response.AddMoveResponse;
-import com.svi.tictactoe.dto.response.CreateGameResponse;
-import com.svi.tictactoe.dto.response.GameStatusResponse;
-import com.svi.tictactoe.dto.response.RoomResponse;
+import com.svi.tictactoe.dto.response.*;
 import com.svi.tictactoe.service.GameService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -49,6 +45,19 @@ public class GameController {
 
         return ResponseEntity.ok(response);
     }
+
+
+    @PostMapping("/{gameId}/remove")
+    public ResponseEntity<RemoveGameResponse> removeGame(@PathVariable UUID gameId) {
+        RemoveGameResponse response = gameService.removeGame(gameId);
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+
+
 
 
 

@@ -5,6 +5,7 @@ import com.svi.tictactoe.dto.request.CreateGameRequest;
 import com.svi.tictactoe.dto.response.AddMoveResponse;
 import com.svi.tictactoe.dto.response.CreateGameResponse;
 import com.svi.tictactoe.dto.response.GameStatusResponse;
+import com.svi.tictactoe.dto.response.RemoveGameResponse;
 import com.svi.tictactoe.engine.GameEngine;
 import com.svi.tictactoe.entity.*;
 
@@ -173,6 +174,31 @@ public class GameServiceImpl implements GameService {
         );
     }
 
+    @Override
+    public RemoveGameResponse removeGame(UUID gameId) {
+
+        Game game = gameRepository.findById(gameId).orElseThrow(() ->
+                        new GameDoesNotExistException("Game does not exist."));
+
+        if (game.getStatus() != GameStatus.IN_PROGRESS) {
+            throw new GameAlreadyFinishedException("Game can no longer be removed.");
+        }
+
+        game.setStatus(GameStatus.ABANDONED);
+        game.setResult(GameResult.INCOMPLETE);
+        game.setEndedAt(Instant.now());
+
+        gameRepository.save(game);
+
+        updatePlayerGameResultsForIncomplete(game);
+        updateRoomAfterGameRemoval(game);
+
+        RemoveGameResponse response = new RemoveGameResponse();
+        response.setMessage("Game removed successfully.");
+
+        return response;
+    }
+
 
     // HELPER FUNCTIONS FOR VALIDATING A MOVE REQUEST
 
@@ -303,6 +329,27 @@ public class GameServiceImpl implements GameService {
         playerGameRepository.save(playerOGame);
     }
 
+    private void updatePlayerGameResultsForIncomplete(Game game) {
+
+        PlayerGameKey playerXKey = new PlayerGameKey();
+        playerXKey.setPlayerId(game.getPlayerXId());
+        playerXKey.setGameId(game.getGameId());
+
+        PlayerGame playerXGame = playerGameRepository.findById(playerXKey).orElseThrow();
+
+        PlayerGameKey playerOKey = new PlayerGameKey();
+        playerOKey.setPlayerId(game.getPlayerOId());
+        playerOKey.setGameId(game.getGameId());
+
+        PlayerGame playerOGame = playerGameRepository.findById(playerOKey).orElseThrow();
+
+        playerXGame.setResult(PlayerGameResult.INCOMPLETE.name());
+        playerOGame.setResult(PlayerGameResult.INCOMPLETE.name());
+
+        playerGameRepository.save(playerXGame);
+        playerGameRepository.save(playerOGame);
+    }
+
     private void updateRoomForRematch(Game game) {
 
         Room room = roomRepository.findFirstByKeyRoomCode(game.getRoomCode()).orElseThrow(() ->
@@ -312,6 +359,20 @@ public class GameServiceImpl implements GameService {
         room.setUpdatedAt(Instant.now());
         roomRepository.save(room);
     }
+
+    private void updateRoomAfterGameRemoval(Game game) {
+
+        Room room = roomRepository.findFirstByKeyRoomCode(game.getRoomCode()).orElseThrow(() ->
+                        new RoomDoesNotExistException("Room does not exist."));
+
+        room.setStatus(RoomStatus.READY);
+        room.setGameId(null);
+        room.setUpdatedAt(Instant.now());
+
+        roomRepository.save(room);
+    }
+
+
 
 
 
