@@ -2,8 +2,10 @@ package com.svi.tictactoe.controller;
 
 
 import com.svi.tictactoe.dto.request.AddMoveRequest;
+import com.svi.tictactoe.dto.request.CreateGameRequest;
 import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.response.AddMoveResponse;
+import com.svi.tictactoe.dto.response.CreateGameResponse;
 import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.service.GameService;
 import jakarta.validation.Valid;
@@ -23,17 +25,21 @@ public class GameController {
         this.gameService  = gameService;
     }
 
+    @PostMapping
+    public ResponseEntity<CreateGameResponse> createGame(@Valid @RequestBody CreateGameRequest request) {
 
+        CreateGameResponse response = gameService.createGame(request);
 
-
-
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
 
     @PostMapping("/{gameId}/moves")
-    public ResponseEntity<RoomResponse> addMoves(@PathVariable UUID gameId, @Valid @RequestBody AddMoveRequest request) {
+    public ResponseEntity<AddMoveResponse> addMoves(@PathVariable UUID gameId, @Valid @RequestBody AddMoveRequest request) {
         AddMoveResponse response = gameService.addMove(gameId,request);
-        return null;
+        return ResponseEntity.ok(response);
     }
+
+
 
 }
