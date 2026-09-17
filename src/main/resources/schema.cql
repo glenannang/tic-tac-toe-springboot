@@ -6,6 +6,14 @@ CREATE KEYSPACE IF NOT EXISTS tictactoe
 
 USE tictactoe;
 
+CREATE TABLE IF NOT EXISTS players (
+                                       player_id uuid PRIMARY KEY,
+                                       wins int,
+                                       losses int,
+                                       draws int,
+                                       games_played int,
+                                       incomplete_games int
+);
 
 CREATE TABLE IF NOT EXISTS rooms_by_code (
                                              room_code text,
