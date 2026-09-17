@@ -4,6 +4,7 @@ import com.svi.tictactoe.dto.request.AddMoveRequest;
 import com.svi.tictactoe.dto.request.CreateGameRequest;
 import com.svi.tictactoe.dto.response.AddMoveResponse;
 import com.svi.tictactoe.dto.response.CreateGameResponse;
+import com.svi.tictactoe.dto.response.GameStatusResponse;
 import com.svi.tictactoe.engine.GameEngine;
 import com.svi.tictactoe.entity.*;
 
@@ -20,6 +21,7 @@ import com.svi.tictactoe.repository.PlayerGameRepository;
 import com.svi.tictactoe.repository.RoomRepository;
 
 import com.svi.tictactoe.service.GameService;
+import com.svi.tictactoe.util.BoardUtil;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -147,6 +149,36 @@ public class GameServiceImpl implements GameService {
 
     }
 
+    @Override
+    public GameStatusResponse getGameStatus(UUID gameId) {
+
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game not found."));
+
+        List<Move> moves = moveRepository.findByKeyGameId(gameId);
+
+        //construct the board
+        List<PlayerSymbol> board = BoardUtil.buildBoard(moves);
+
+        //determine nextTurn
+        PlayerSymbol nextTurn = null;
+
+        if (game.getStatus() == GameStatus.IN_PROGRESS) {
+            nextTurn = gameEngine.getNextTurn(moves);
+        }
+
+        return gameMapper.toGameStatusResponse(game, board, nextTurn, moves.size()
+        );
+    }
+
+
+
+
+
+
+
+
+
+
     // HELPER FUNCTIONS FOR VALIDATING A MOVE REQUEST
 
     //check if player belongs to the game
@@ -208,6 +240,11 @@ public class GameServiceImpl implements GameService {
 
         return PlayerSymbol.O;
     }
+
+
+
+
+
 
     private void savePlayerGames(Game game) {
 

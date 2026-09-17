@@ -6,6 +6,7 @@ import com.svi.tictactoe.dto.request.CreateGameRequest;
 import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.response.AddMoveResponse;
 import com.svi.tictactoe.dto.response.CreateGameResponse;
+import com.svi.tictactoe.dto.response.GameStatusResponse;
 import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.service.GameService;
 import jakarta.validation.Valid;
@@ -37,6 +38,15 @@ public class GameController {
     @PostMapping("/{gameId}/moves")
     public ResponseEntity<AddMoveResponse> addMoves(@PathVariable UUID gameId, @Valid @RequestBody AddMoveRequest request) {
         AddMoveResponse response = gameService.addMove(gameId,request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{gameId}")
+    public ResponseEntity<GameStatusResponse> getGameStatus(
+            @PathVariable UUID gameId) {
+
+        GameStatusResponse response = gameService.getGameStatus(gameId);
+
         return ResponseEntity.ok(response);
     }
 
