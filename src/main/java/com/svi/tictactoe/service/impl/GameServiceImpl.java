@@ -2,10 +2,7 @@ package com.svi.tictactoe.service.impl;
 
 import com.svi.tictactoe.dto.request.AddMoveRequest;
 import com.svi.tictactoe.dto.request.CreateGameRequest;
-import com.svi.tictactoe.dto.response.AddMoveResponse;
-import com.svi.tictactoe.dto.response.CreateGameResponse;
-import com.svi.tictactoe.dto.response.GameStatusResponse;
-import com.svi.tictactoe.dto.response.RemoveGameResponse;
+import com.svi.tictactoe.dto.response.*;
 import com.svi.tictactoe.engine.GameEngine;
 import com.svi.tictactoe.entity.*;
 
@@ -67,11 +64,10 @@ public class GameServiceImpl implements GameService {
         Room room = roomRepository.findFirstByKeyRoomCode(request.getRoomCode()).orElseThrow(() ->
                         new RoomDoesNotExistException("Room does not exist."));
 
-        //check if room is ready
-        if (room.getStatus() != RoomStatus.READY) {
-            throw new RoomUnavailableException("Game can only be created when the room is ready with two players.");
-        }
-
+        if (room.getStatus() == RoomStatus.CLOSED) {throw new RoomUnavailableException("Cannot create game. Room is already closed.");}
+        if (room.getStatus() == RoomStatus.IN_GAME) {throw new RoomUnavailableException("Cannot create game. Room already has an ongoing game.");}
+        if (room.getStatus() == RoomStatus.REMATCH) {throw new RoomUnavailableException("Cannot create game. Room is waiting for a rematch.");}
+        if (room.getStatus() == RoomStatus.WAITING) {throw new RoomUnavailableException("Cannot create game. Waiting for another player to join.");}
 
         UUID gameId = UUID.randomUUID();
         Game game = new Game();
@@ -212,6 +208,20 @@ public class GameServiceImpl implements GameService {
 
         return gameMapper.toRemoveGameResponse("Game removed successfully.");
     }
+
+    @Override
+    public BoardStatusResponse getBoardStatus(UUID gameId) {
+
+        gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game does not exist."));
+        List<Move> moves = moveRepository.findByKeyGameId(gameId);
+        //build the board
+        List<PlayerSymbol> board = BoardUtil.buildBoard(moves);
+
+        return gameMapper.toBoardStatusResponse(board);
+    }
+
+
+
 
 
     // HELPER FUNCTIONS FOR VALIDATING A MOVE REQUEST

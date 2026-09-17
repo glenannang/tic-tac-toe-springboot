@@ -1,5 +1,6 @@
 package com.svi.tictactoe.mapper;
 
+import com.svi.tictactoe.dto.response.BoardStatusResponse;
 import com.svi.tictactoe.dto.response.CreateGameResponse;
 import com.svi.tictactoe.dto.response.GameStatusResponse;
 import com.svi.tictactoe.dto.response.RemoveGameResponse;
@@ -45,7 +46,8 @@ public class GameMapper {
         return response;
     }
 
-
-
+    public BoardStatusResponse toBoardStatusResponse(List<PlayerSymbol> board) {
+        return new BoardStatusResponse(board);
+    }
 
 }

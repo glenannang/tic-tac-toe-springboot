@@ -51,5 +51,11 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{gameId}/board")
+    public ResponseEntity<BoardStatusResponse> getBoardStatus(@PathVariable UUID gameId) {
+        BoardStatusResponse response = gameService.getBoardStatus(gameId);
+        return ResponseEntity.ok(response);
+    }
+
     
 }
