@@ -32,7 +32,6 @@ public class PlayerServiceImpl implements PlayerService {
         player.setDraws(0);
         player.setGamesPlayed(0);
         player.setIncompleteGames(0);
-
         Player savedPlayer = playerRepository.save(player);
 
         return playerMapper.toCreatePlayerResponse(savedPlayer, "Player created successfully.");
@@ -44,5 +43,69 @@ public class PlayerServiceImpl implements PlayerService {
             throw new PlayerDoesNotExistException("Player does not exist.");
         }
     }
+
+    @Override
+    public void recordWinAndLoss(UUID winnerId, UUID loserId) {
+
+        Player winner = playerRepository.findById(winnerId).orElseThrow(() ->
+                        new PlayerDoesNotExistException("Winner does not exist."));
+
+        Player loser = playerRepository.findById(loserId).orElseThrow(() ->
+                        new PlayerDoesNotExistException("Loser does not exist."));
+
+        winner.setWins(winner.getWins() + 1);
+        loser.setLosses(loser.getLosses() + 1);
+
+        playerRepository.save(winner);
+        playerRepository.save(loser);
+    }
+
+    @Override
+    public void recordDraw(UUID playerXId, UUID playerOId) {
+
+        Player playerX = playerRepository.findById(playerXId).orElseThrow(() ->
+                        new PlayerDoesNotExistException("Player X does not exist."));
+
+        Player playerO = playerRepository.findById(playerOId).orElseThrow(() ->
+                        new PlayerDoesNotExistException("Player O does not exist."));
+
+        playerX.setDraws(playerX.getDraws() + 1);
+        playerO.setDraws(playerO.getDraws() + 1);
+
+        playerRepository.save(playerX);
+        playerRepository.save(playerO);
+    }
+
+    @Override
+    public void recordGamePlayed(UUID playerId) {
+
+        Player player = playerRepository.findById(playerId).orElseThrow(() ->
+                        new PlayerDoesNotExistException("Player does not exist."));
+
+        player.setGamesPlayed(player.getGamesPlayed() + 1);
+        playerRepository.save(player);
+    }
+
+    @Override
+    public void recordIncompleteGame(UUID playerXId, UUID playerOId) {
+
+        Player playerX = playerRepository.findById(playerXId).orElseThrow(() ->
+                        new PlayerDoesNotExistException("Player X does not exist."));
+
+        Player playerO = playerRepository.findById(playerOId)
+                .orElseThrow(() -> new PlayerDoesNotExistException("Player O does not exist."));
+
+        playerX.setIncompleteGames(playerX.getIncompleteGames() + 1);
+        playerO.setIncompleteGames(playerO.getIncompleteGames() + 1);
+
+        playerRepository.save(playerX);
+        playerRepository.save(playerO);
+    }
+
+
+
+
+
+
 
 }

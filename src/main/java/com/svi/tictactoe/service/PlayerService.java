@@ -8,8 +8,9 @@ public interface PlayerService {
 
     CreatePlayerResponse createPlayer();
     void validatePlayerExists(UUID playerId);
-
-
-
+    void recordWinAndLoss(UUID winnerId, UUID loserId);
+    void recordDraw(UUID playerXId, UUID playerOId);
+    void recordIncompleteGame(UUID playerXId, UUID playerOId);
+    void recordGamePlayed(UUID playerId);
 
 }

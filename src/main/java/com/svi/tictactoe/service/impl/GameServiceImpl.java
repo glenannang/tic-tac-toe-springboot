@@ -142,6 +142,12 @@ public class GameServiceImpl implements GameService {
             updateRoomForRematch(game);
             updatePlayerGameResults(game, request.getPlayerId());
 
+            UUID winnerId = request.getPlayerId();
+            UUID loserId = winnerId.equals(game.getPlayerXId()) ? game.getPlayerOId() : game.getPlayerXId();
+
+            playerService.recordWinAndLoss(winnerId, loserId);
+            playerService.recordGamePlayed(winnerId);
+            playerService.recordGamePlayed(loserId);
 
         } else if (gameEngine.isDraw(existingMoves)) {
             game.setStatus(GameStatus.FINISHED);
@@ -153,7 +159,9 @@ public class GameServiceImpl implements GameService {
             updateRoomForRematch(game);
             updatePlayerGameResultsForDraw(game);
 
-
+            playerService.recordDraw(game.getPlayerXId(), game.getPlayerOId());
+            playerService.recordGamePlayed(game.getPlayerXId());
+            playerService.recordGamePlayed(game.getPlayerOId());
         }
         
         return moveMapper.toAddMoveResponse(moveNumber, "Move saved successfully.");
@@ -184,8 +192,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public RemoveGameResponse removeGame(UUID gameId) {
 
-        Game game = gameRepository.findById(gameId).orElseThrow(() ->
-                        new GameDoesNotExistException("Game does not exist."));
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game does not exist."));
 
         if (game.getStatus() != GameStatus.IN_PROGRESS) {
             throw new GameAlreadyFinishedException("Game can no longer be removed.");
@@ -196,10 +203,12 @@ public class GameServiceImpl implements GameService {
         game.setEndedAt(Instant.now());
 
         gameRepository.save(game);
-
         updatePlayerGameResultsForIncomplete(game);
         updateRoomAfterGameRemoval(game);
 
+        playerService.recordIncompleteGame(game.getPlayerXId(), game.getPlayerOId());
+        playerService.recordGamePlayed(game.getPlayerXId());
+        playerService.recordGamePlayed(game.getPlayerOId());
 
         return gameMapper.toRemoveGameResponse("Game removed successfully.");
     }

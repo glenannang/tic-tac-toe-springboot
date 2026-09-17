@@ -161,12 +161,14 @@ public class RoomServiceImpl implements RoomService {
 
             game.setStatus(GameStatus.ABANDONED);
             game.setResult(GameResult.INCOMPLETE);
-            game.setWinnerId(null);
             game.setEndedAt(Instant.now());
 
             gameRepository.save(game);
-
             updatePlayerGameResultsForIncomplete(game);
+            playerService.recordIncompleteGame(game.getPlayerXId(), game.getPlayerOId());
+
+            playerService.recordGamePlayed(game.getPlayerXId());
+            playerService.recordGamePlayed(game.getPlayerOId());
         }
 
         //update room status
@@ -183,21 +185,16 @@ public class RoomServiceImpl implements RoomService {
         // Check if player exists
         playerService.validatePlayerExists(request.getPlayerId());
 
-        Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
-                        new RoomDoesNotExistException("Room does not exist."));
+        Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() -> new RoomDoesNotExistException("Room does not exist."));
 
-        if (room.getStatus() != RoomStatus.REMATCH) {
-            throw new RoomUnavailableException("Room is not available for a rematch.");
-        }
+        if (room.getStatus() != RoomStatus.REMATCH) {throw new RoomUnavailableException("Room is not available for a rematch.");}
 
         UUID playerId = request.getPlayerId();
 
         boolean isHost = playerId.equals(room.getHostPlayerId());
         boolean isGuest = playerId.equals(room.getGuestPlayerId());
 
-        if (!isHost && !isGuest) {
-            throw new PlayerNotInRoomException("Player does not belong to this room.");
-        }
+        if (!isHost && !isGuest) {throw new PlayerNotInRoomException("Player does not belong to this room.");}
 
         if (isHost) {
             room.setHostRematch(true);
@@ -245,12 +242,9 @@ public class RoomServiceImpl implements RoomService {
         newRoom.setHostPlayerId(room.getHostPlayerId());
         newRoom.setGuestPlayerId(room.getGuestPlayerId());
         newRoom.setGameId(newGameId);
-
         newRoom.setStatus(RoomStatus.IN_GAME);
-
         newRoom.setHostRematch(false);
         newRoom.setGuestRematch(false);
-
         newRoom.setUpdatedAt(Instant.now());
 
         roomRepository.save(newRoom);
