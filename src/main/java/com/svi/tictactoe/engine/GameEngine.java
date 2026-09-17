@@ -44,4 +44,8 @@ public class GameEngine {
     public boolean isDraw(List<Move> moves) {
         return moves.size() == 9;
     }
+
+    public PlayerSymbol getNextTurn(List<Move> moves) {
+        return moves.size() % 2 == 0 ? PlayerSymbol.X : PlayerSymbol.O;
+    }
 }
