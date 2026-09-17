@@ -1,10 +1,12 @@
 package com.svi.tictactoe.mapper;
 
 import com.svi.tictactoe.dto.response.LeaveRoomResponse;
+import com.svi.tictactoe.dto.response.RematchResponse;
 import com.svi.tictactoe.dto.response.RoomResponse;
 import com.svi.tictactoe.dto.response.RoomStatusResponse;
 import com.svi.tictactoe.entity.Room;
 import com.svi.tictactoe.enums.PlayerSymbol;
+import com.svi.tictactoe.enums.RoomStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -38,6 +40,17 @@ public class RoomMapper {
 
         LeaveRoomResponse response = new LeaveRoomResponse();
         response.setMessage(message);
+
+        return response;
+    }
+
+    public RematchResponse toRematchResponse(String message, RoomStatus status, UUID gameId) {
+
+        RematchResponse response = new RematchResponse();
+
+        response.setMessage(message);
+        response.setStatus(status);
+        response.setGameId(gameId);
 
         return response;
     }
