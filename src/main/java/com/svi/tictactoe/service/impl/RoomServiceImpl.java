@@ -85,42 +85,37 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomResponse joinRoom(String roomCode, JoinRoomRequest request) {
 
-        // Check if player exists
+        // check if player exists
         playerService.validatePlayerExists(request.getPlayerId());
 
         //get latest row with the given roomCode
         Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
                         new RoomDoesNotExistException("Room does not exist."));
 
+        UUID playerId = request.getPlayerId();
+
+        // closed room cannot be joined
+        if (room.getStatus() == RoomStatus.CLOSED) {
+            throw new RoomUnavailableException("Cannot join. Room is already closed.");
+        }
+
         // prevents the same player to join
-        if (room.getHostPlayerId().equals(request.getPlayerId())) {
+        if (playerId.equals(room.getHostPlayerId()) || playerId.equals(room.getGuestPlayerId())) {
             throw new PlayerAlreadyInRoomException("Player is already in the room.");
         }
 
-        // WAITING STATE
-        if (room.getStatus() == RoomStatus.WAITING) {
-
-            room.setGuestPlayerId(request.getPlayerId());
-            room.setStatus(RoomStatus.READY);
-            room.setUpdatedAt(Instant.now());
-            roomRepository.save(room);
-
-            return roomMapper.toRoomResponse(room, request.getPlayerId(), PlayerSymbol.O,"Room joined successfully."
-            );
+        if (room.getStatus() != RoomStatus.WAITING) {
+            throw new RoomUnavailableException("Cannot join. Room is already full.");
         }
-        // GAME IN PROGRESS
-        else if (room.getStatus() == RoomStatus.IN_GAME) {
 
-            throw new RoomUnavailableException("Cannot join. Room currently has an ongoing game.");
+        room.setGuestPlayerId(request.getPlayerId());
+        room.setStatus(RoomStatus.READY);
+        room.setUpdatedAt(Instant.now());
+        roomRepository.save(room);
 
-        }
-        // REMATCH STATE
-        else {
-            throw new RoomUnavailableException("Cannot join. Room is currently in the rematch phase.");
-        }
+        return roomMapper.toRoomResponse(room, playerId, PlayerSymbol.O,"Room joined successfully.");
+
     }
-
-
 
     @Override
     public RoomStatusResponse getRoomStatus(String roomCode){
@@ -210,7 +205,7 @@ public class RoomServiceImpl implements RoomService {
             return roomMapper.toRematchResponse("Waiting for the other player to accept the rematch.", RoomStatus.REMATCH, null);
         }
 
-        // both players accepted rematch
+        // both players already accepted rematch
         room.setStatus(RoomStatus.FINISHED);
         room.setUpdatedAt(Instant.now());
         roomRepository.save(room);
@@ -251,6 +246,8 @@ public class RoomServiceImpl implements RoomService {
         return roomMapper.toRematchResponse("Rematch started.", RoomStatus.IN_GAME, newGameId);
     }
 
+
+    //HELPER METHODS
 
     private void updatePlayerGameResultsForIncomplete(Game game) {
 
