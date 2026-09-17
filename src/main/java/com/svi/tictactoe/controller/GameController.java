@@ -30,7 +30,6 @@ public class GameController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-
     @PostMapping("/{gameId}/moves")
     public ResponseEntity<AddMoveResponse> addMoves(@PathVariable UUID gameId, @Valid @RequestBody AddMoveRequest request) {
         AddMoveResponse response = gameService.addMove(gameId,request);
@@ -46,19 +45,11 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
-
     @PostMapping("/{gameId}/remove")
     public ResponseEntity<RemoveGameResponse> removeGame(@PathVariable UUID gameId) {
         RemoveGameResponse response = gameService.removeGame(gameId);
         return ResponseEntity.ok(response);
     }
 
-
-
-
-
-
-
-
-
+    
 }

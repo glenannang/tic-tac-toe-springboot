@@ -2,6 +2,7 @@ package com.svi.tictactoe.mapper;
 
 import com.svi.tictactoe.dto.response.CreateGameResponse;
 import com.svi.tictactoe.dto.response.GameStatusResponse;
+import com.svi.tictactoe.dto.response.RemoveGameResponse;
 import com.svi.tictactoe.entity.Game;
 import com.svi.tictactoe.enums.PlayerSymbol;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,14 @@ public class GameMapper {
         response.setMoveCount(moveCount);
         response.setWinnerId(game.getWinnerId());
         response.setResult(game.getResult());
+
+        return response;
+    }
+
+    public RemoveGameResponse toRemoveGameResponse(String message) {
+
+        RemoveGameResponse response = new RemoveGameResponse();
+        response.setMessage(message);
 
         return response;
     }

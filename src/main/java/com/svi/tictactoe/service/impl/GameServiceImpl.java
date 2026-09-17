@@ -193,10 +193,9 @@ public class GameServiceImpl implements GameService {
         updatePlayerGameResultsForIncomplete(game);
         updateRoomAfterGameRemoval(game);
 
-        RemoveGameResponse response = new RemoveGameResponse();
-        response.setMessage("Game removed successfully.");
 
-        return response;
+        return gameMapper.toRemoveGameResponse("Game removed successfully."
+        );
     }
 
 
