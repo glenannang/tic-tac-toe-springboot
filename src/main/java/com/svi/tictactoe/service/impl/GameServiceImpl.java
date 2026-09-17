@@ -5,10 +5,7 @@ import com.svi.tictactoe.dto.request.CreateGameRequest;
 import com.svi.tictactoe.dto.response.AddMoveResponse;
 import com.svi.tictactoe.dto.response.CreateGameResponse;
 import com.svi.tictactoe.engine.GameEngine;
-import com.svi.tictactoe.entity.Game;
-import com.svi.tictactoe.entity.Move;
-import com.svi.tictactoe.entity.MoveKey;
-import com.svi.tictactoe.entity.Room;
+import com.svi.tictactoe.entity.*;
 
 import com.svi.tictactoe.enums.GameResult;
 import com.svi.tictactoe.enums.GameStatus;
@@ -19,6 +16,7 @@ import com.svi.tictactoe.mapper.GameMapper;
 import com.svi.tictactoe.mapper.MoveMapper;
 import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.repository.MoveRepository;
+import com.svi.tictactoe.repository.PlayerGameRepository;
 import com.svi.tictactoe.repository.RoomRepository;
 
 import com.svi.tictactoe.service.GameService;
@@ -35,6 +33,7 @@ public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
     private final MoveRepository moveRepository;
     private final RoomRepository roomRepository;
+    private final PlayerGameRepository playerGameRepository;
     private final GameMapper gameMapper;
     private final MoveMapper moveMapper;
     private final GameEngine gameEngine;
@@ -42,6 +41,7 @@ public class GameServiceImpl implements GameService {
     public GameServiceImpl(GameRepository gameRepository,
                            MoveRepository moveRepository,
                            RoomRepository roomRepository,
+                           PlayerGameRepository playerGameRepository,
                            GameMapper gameMapper,
                            MoveMapper moveMapper,
                            GameEngine gameEngine) {
@@ -49,6 +49,7 @@ public class GameServiceImpl implements GameService {
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
         this.moveRepository = moveRepository;
+        this.playerGameRepository = playerGameRepository;
         this.gameMapper = gameMapper;
         this.moveMapper = moveMapper;
         this.gameEngine = gameEngine;
@@ -62,6 +63,7 @@ public class GameServiceImpl implements GameService {
         Room room = roomRepository.findFirstByKeyRoomCode(request.getRoomCode()).orElseThrow(() ->
                         new RoomDoesNotExistException("Room does not exist."));
 
+        //check if room is ready
         if (room.getStatus() != RoomStatus.READY) {
             throw new RoomUnavailableException("Game can only be created when the room is ready with two players.");
         }
@@ -78,6 +80,9 @@ public class GameServiceImpl implements GameService {
         game.setCreatedAt(Instant.now());
 
         Game savedGame = gameRepository.save(game);
+
+        // Add game record for both players
+        savePlayerGames(savedGame);
 
         //update room record
         room.setGameId(gameId);
@@ -202,6 +207,26 @@ public class GameServiceImpl implements GameService {
         }
 
         return PlayerSymbol.O;
+    }
+
+    private void savePlayerGames(Game game) {
+
+        PlayerGameKey playerXKey = new PlayerGameKey();
+        playerXKey.setPlayerId(game.getPlayerXId());
+        playerXKey.setGameId(game.getGameId());
+
+        PlayerGame playerXGame = new PlayerGame();
+        playerXGame.setKey(playerXKey);
+
+        PlayerGameKey playerOKey = new PlayerGameKey();
+        playerOKey.setPlayerId(game.getPlayerOId());
+        playerOKey.setGameId(game.getGameId());
+
+        PlayerGame playerOGame = new PlayerGame();
+        playerOGame.setKey(playerOKey);
+
+        playerGameRepository.save(playerXGame);
+        playerGameRepository.save(playerOGame);
     }
 
 }
