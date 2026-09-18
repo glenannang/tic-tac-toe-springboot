@@ -324,19 +324,10 @@ public class GameServiceImpl implements GameService {
 
     private void updatePlayerGameResults(Game game, UUID winnerId) {
 
-        PlayerGameKey winnerKey = new PlayerGameKey();
-        winnerKey.setPlayerId(winnerId);
-        winnerKey.setGameId(game.getGameId());
-
-        PlayerGame winnerGame = playerGameRepository.findById(winnerKey).orElseThrow();
-
         UUID loserId = winnerId.equals(game.getPlayerXId()) ? game.getPlayerOId() : game.getPlayerXId();
 
-        PlayerGameKey loserKey = new PlayerGameKey();
-        loserKey.setPlayerId(loserId);
-        loserKey.setGameId(game.getGameId());
-
-        PlayerGame loserGame = playerGameRepository.findById(loserKey).orElseThrow();
+        PlayerGame winnerGame = getPlayerGame(winnerId, game.getGameId());
+        PlayerGame loserGame = getPlayerGame(loserId, game.getGameId());
 
         winnerGame.setResult(PlayerGameResult.WIN.name());
         loserGame.setResult(PlayerGameResult.LOSS.name());
