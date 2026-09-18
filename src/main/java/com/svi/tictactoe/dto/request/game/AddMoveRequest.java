@@ -14,7 +14,7 @@ public class AddMoveRequest {
     @NotNull(message = "Position is required.")
     @Min(value = 0, message = "Position must be between 0 and 8.")
     @Max(value = 8, message = "Position must be between 0 and 8.")
-    private int position;
+    private Integer position;
 
 
     public UUID getPlayerId() {
@@ -25,11 +25,11 @@ public class AddMoveRequest {
         this.playerId = playerId;
     }
 
-    public int getPosition() {
+    public Integer getPosition() {
         return position;
     }
 
-    public void setPosition(int position) {
+    public void setPosition(Integer position) {
         this.position = position;
     }
 }
