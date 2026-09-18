@@ -3,9 +3,13 @@ package com.svi.tictactoe.exception;
 import com.svi.tictactoe.constant.ErrorMessages;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import tools.jackson.databind.exc.InvalidFormatException;
+
+import java.util.UUID;
 
 
 @RestControllerAdvice
@@ -51,6 +55,23 @@ public class GlobalExceptionHandler {
                 .getDefaultMessage();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleInvalidRequestBody(
+            HttpMessageNotReadableException exception) {
+
+        if (exception.getCause() instanceof InvalidFormatException invalidFormatException
+                && invalidFormatException.getTargetType() == UUID.class) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body("ID must be a valid UUID.");
+        }
+
+        return ResponseEntity
+                .badRequest()
+                .body("Invalid request format.");
     }
 
     @ExceptionHandler(Exception.class)

@@ -11,6 +11,7 @@ public class AddMoveRequest {
     @NotNull(message = "Player ID is required.")
     private UUID playerId;
 
+    @NotNull(message = "Position is required.")
     @Min(value = 0, message = "Position must be between 0 and 8.")
     @Max(value = 8, message = "Position must be between 0 and 8.")
     private int position;
