@@ -2,7 +2,9 @@ package com.svi.tictactoe.service.impl;
 
 import com.svi.tictactoe.dto.response.LeaderboardEntryResponse;
 import com.svi.tictactoe.dto.response.LeaderboardResponse;
+import com.svi.tictactoe.dto.response.PlayerRankResponse;
 import com.svi.tictactoe.entity.Player;
+import com.svi.tictactoe.exception.PlayerDoesNotExistException;
 import com.svi.tictactoe.mapper.LeaderboardMapper;
 import com.svi.tictactoe.repository.PlayerRepository;
 import com.svi.tictactoe.service.LeaderboardService;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class LeaderboardServiceImpl implements LeaderboardService {
@@ -49,5 +52,25 @@ public class LeaderboardServiceImpl implements LeaderboardService {
 
         return leaderboardMapper.toLeaderboardResponse(entries);
 
+    }
+
+    @Override
+    public PlayerRankResponse getPlayerRank(UUID playerId) {
+
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new PlayerDoesNotExistException("Player does not exist."));
+
+        List<Player> players = playerRepository.findAll();
+
+        int rank = 1;
+
+        for (Player otherPlayer : players) {
+            if (otherPlayer.getWins() > player.getWins()) {
+                rank++;
+            }
+        }
+
+        int totalPlayers = players.size();
+        return leaderboardMapper.toPlayerRankResponse(player, rank, totalPlayers);
     }
 }
