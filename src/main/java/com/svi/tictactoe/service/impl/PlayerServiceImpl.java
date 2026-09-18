@@ -6,12 +6,14 @@ import com.svi.tictactoe.dto.response.player.CreatePlayerResponse;
 import com.svi.tictactoe.entity.Player;
 import com.svi.tictactoe.exception.player.PlayerDoesNotExistException;
 import com.svi.tictactoe.mapper.PlayerMapper;
+import com.svi.tictactoe.repository.PlayerGameRepository;
 import com.svi.tictactoe.repository.PlayerRepository;
 import com.svi.tictactoe.service.PlayerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,10 +23,14 @@ public class PlayerServiceImpl implements PlayerService {
 
     private final PlayerRepository playerRepository;
     private final PlayerMapper playerMapper;
+    private final PlayerGameRepository playerGameRepository;
 
-    public PlayerServiceImpl(PlayerRepository playerRepository, PlayerMapper playerMapper) {
+    public PlayerServiceImpl(PlayerRepository playerRepository,
+                             PlayerGameRepository playerGameRepository,
+                             PlayerMapper playerMapper) {
         this.playerRepository = playerRepository;
         this.playerMapper = playerMapper;
+        this.playerGameRepository= playerGameRepository;
     }
 
     @Override
@@ -42,6 +48,15 @@ public class PlayerServiceImpl implements PlayerService {
 
         logger.info("Player created successfully with id {}", savedPlayer.getPlayerId());
         return playerMapper.toCreatePlayerResponse(savedPlayer, SuccessMessages.PLAYER_CREATED_SUCCESSFULLY.getMessage());
+    }
+    @Override
+    public List<UUID> getPlayerGames(UUID playerId) {
+        validatePlayerExists(playerId);
+
+        return playerGameRepository.findByKeyPlayerId(playerId)
+                .stream()
+                .map(playerGame -> playerGame.getKey().getGameId())
+                .toList();
     }
 
     @Override
