@@ -21,7 +21,9 @@ public enum ErrorMessages {
     POSITION_ALREADY_TAKEN("Position is already taken."),
     PLAYER_X_TURN("It is Player X's turn."),
     NOT_THIS_PLAYERS_TURN("It is not this player's turn."),
-    UNEXPECTED_INTERNAL_SERVER_ERROR("An unexpected internal server error occurred.");
+    UNEXPECTED_INTERNAL_SERVER_ERROR("An unexpected internal server error occurred."),
+    INVALID_UUID("ID must be a valid UUID."),
+    INVALID_REQUEST_FORMAT("Invalid request format.");
 
     private final String message;
 
