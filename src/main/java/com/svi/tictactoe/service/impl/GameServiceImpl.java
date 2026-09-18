@@ -2,14 +2,20 @@ package com.svi.tictactoe.service.impl;
 
 import com.svi.tictactoe.constant.ErrorMessages;
 import com.svi.tictactoe.constant.SuccessMessages;
-import com.svi.tictactoe.dto.request.AddMoveRequest;
-import com.svi.tictactoe.dto.request.CreateGameRequest;
-import com.svi.tictactoe.dto.response.*;
+import com.svi.tictactoe.dto.request.game.AddMoveRequest;
+import com.svi.tictactoe.dto.request.game.CreateGameRequest;
+import com.svi.tictactoe.dto.response.game.*;
 import com.svi.tictactoe.engine.GameEngine;
 import com.svi.tictactoe.entity.*;
 
 import com.svi.tictactoe.enums.*;
-import com.svi.tictactoe.exception.*;
+import com.svi.tictactoe.exception.game.GameAlreadyFinishedException;
+import com.svi.tictactoe.exception.game.GameDoesNotExistException;
+import com.svi.tictactoe.exception.game.InvalidTurnException;
+import com.svi.tictactoe.exception.game.PositionAlreadyTakenException;
+import com.svi.tictactoe.exception.player.PlayerNotInGameException;
+import com.svi.tictactoe.exception.room.RoomDoesNotExistException;
+import com.svi.tictactoe.exception.room.RoomUnavailableException;
 import com.svi.tictactoe.mapper.GameMapper;
 import com.svi.tictactoe.mapper.MoveMapper;
 import com.svi.tictactoe.repository.GameRepository;
