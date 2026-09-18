@@ -283,6 +283,11 @@ public class GameServiceImpl implements GameService {
                         new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
     }
 
+    private Room getRoom(String roomCode) {
+        return roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
+                        new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage()));
+    }
+
     private PlayerSymbol determinePlayerSymbol(Game game, UUID playerId) {
 
         if (playerId.equals(game.getPlayerXId())) {
@@ -362,19 +367,16 @@ public class GameServiceImpl implements GameService {
 
     private void updateRoomForRematch(Game game) {
 
-        Room room = roomRepository.findFirstByKeyRoomCode(game.getRoomCode()).orElseThrow(() ->
-                        new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage()));
-
+        Room room = getRoom(game.getRoomCode());
         room.setStatus(RoomStatus.REMATCH);
         room.setUpdatedAt(Instant.now());
         roomRepository.save(room);
+
     }
 
     private void updateRoomAfterGameRemoval(Game game) {
 
-        Room room = roomRepository.findFirstByKeyRoomCode(game.getRoomCode()).orElseThrow(() ->
-                        new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage()));
-
+        Room room = getRoom(game.getRoomCode());
         room.setStatus(RoomStatus.READY);
         room.setGameId(null);
         room.setUpdatedAt(Instant.now());
