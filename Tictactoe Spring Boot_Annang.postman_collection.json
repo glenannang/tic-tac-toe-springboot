@@ -1,0 +1,616 @@
+{
+  "info": {
+    "_postman_id": "cfa85212-69d8-4a9f-aa65-a3760a908346",
+    "name": "Tictactoe Spring Boot_Annang",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57472353",
+    "_collection_link": "https://go.postman.co/collection/57472353-cfa85212-69d8-4a9f-aa65-a3760a908346?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Room",
+      "item": [
+        {
+          "name": "CREATE ROOM",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{playerXId}}\",\r\n  \"roomCode\": \"{{roomCode}}\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation: Invalid Room Code",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{playerXId}}\",\r\n  \"roomCode\": \"{{invalidRoomcode}}\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation: Invalid Player ID",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{invalidPlayerId}}\",\r\n  \"roomCode\": \"{{roomCode}}\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "JOIN ROOM",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{playerOId}}\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms/{{roomCode}}/join",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}",
+                "join"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation: Room Full",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{player3Id}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms/{{roomCode}}/join",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}",
+                "join"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation: Same Player Tries to Join",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{playerXId}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms/{{roomCode}}/join",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}",
+                "join"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "REMATCH PLAYER 1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{playerXId}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms/{{roomCode}}/rematch",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}",
+                "rematch"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "REMATCH PLAYER 2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{playerOId}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms/{{roomCode}}/rematch",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}",
+                "rematch"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "LEAVE ROOM",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": \"{{playerXId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms/{{roomCode}}/leave",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}",
+                "leave"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation: Player Not in Room",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": \"{{player3Id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms/{{roomCode}}/leave",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}",
+                "leave"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ROOM STATUS",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/rooms/{{roomCode}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Game",
+      "item": [
+        {
+          "name": "CREATE GAME",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"roomCode\": \"{{roomCode}}\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/games",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "games"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GAME STATUS",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/games/{{gameId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "games",
+                "{{gameId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "BOARD STATUS",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"roomCode\": \"abcdef\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/games/{{gameId}}/board",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "games",
+                "{{gameId}}",
+                "board"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ADD MOVE PLAYER X",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{playerXId}}\",\r\n  \"position\": {{position}}\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/games/{{gameId}}/moves",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "games",
+                "{{gameId}}",
+                "moves"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ADD MOVE PLAYER O",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{playerOId}}\",\r\n  \"position\": {{position}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/games/{{gameId}}/moves",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "games",
+                "{{gameId}}",
+                "moves"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation: Player Not in Game",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"playerId\": \"{{player3Id}}\",\r\n  \"position\": {{position}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/games/{{gameId}}/moves",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "games",
+                "{{gameId}}",
+                "moves"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "REMOVE GAME",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/games/{{gameId}}/remove",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "games",
+                "{{gameId}}",
+                "remove"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Player",
+      "item": [
+        {
+          "name": "CREATE PLAYER",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/players",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "players"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "LEADERBOARD",
+      "item": [
+        {
+          "name": "LEADERBOARD",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/leaderboard",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "leaderboard"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PLAYER RANK AND STATS",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/leaderboard/{{playerXId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "leaderboard",
+                "{{playerXId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "playerXId",
+      "value": ""
+    },
+    {
+      "key": "playerOId",
+      "value": ""
+    },
+    {
+      "key": "player3Id",
+      "value": ""
+    },
+    {
+      "key": "invalidPlayerId",
+      "value": ""
+    },
+    {
+      "key": "baseURL",
+      "value": ""
+    },
+    {
+      "key": "roomCode",
+      "value": ""
+    },
+    {
+      "key": "invalidRoomCode",
+      "value": ""
+    },
+    {
+      "key": "gameId",
+      "value": ""
+    },
+    {
+      "key": "position",
+      "value": ""
+    }
+  ]
+}
