@@ -737,7 +737,7 @@
     },
     {
       "key": "invalidPlayerId",
-      "value": ""
+      "value": "INVALID"
     },
     {
       "key": "baseURL",
