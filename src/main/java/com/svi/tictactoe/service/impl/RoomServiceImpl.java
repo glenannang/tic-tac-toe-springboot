@@ -80,7 +80,7 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.save(room);
 
         logger.info("Room created successfully with code {}", request.getRoomCode());
-        return roomMapper.toRoomResponse(room, request.getPlayerId(),PlayerSymbol.X,SuccessMessages.ROOM_CREATED_SUCCESSFULLY.getMessage());
+        return roomMapper.toRoomResponse(room, request.getPlayerId(),PlayerSymbol.X, SuccessMessages.ROOM_CREATED_SUCCESSFULLY.getMessage());
 
     }
 
@@ -115,7 +115,7 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.save(room);
 
         logger.info("Player joined room {}", roomCode);
-        return roomMapper.toRoomResponse(room, playerId, PlayerSymbol.O,SuccessMessages.ROOM_JOINED_SUCCESSFULLY.getMessage());
+        return roomMapper.toRoomResponse(room, playerId, PlayerSymbol.O, SuccessMessages.ROOM_JOINED_SUCCESSFULLY.getMessage());
 
     }
 

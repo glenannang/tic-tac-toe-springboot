@@ -216,6 +216,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public BoardStatusResponse getBoardStatus(UUID gameId) {
 
+        //check if game exists
         Game game = getGame(gameId);
 
         List<Move> moves = moveRepository.findByKeyGameId(gameId);
@@ -259,6 +260,7 @@ public class GameServiceImpl implements GameService {
 
     //check if the turn is valid
     private void validateTurn(Game game, UUID playerId, List<Move> existingMoves) {
+
         // First move is always Player X
         if (existingMoves.isEmpty()) {
 
@@ -273,18 +275,14 @@ public class GameServiceImpl implements GameService {
         UUID expectedPlayerId;
 
         if (lastMove.getPlayerId().equals(game.getPlayerXId())) {
-
             expectedPlayerId = game.getPlayerOId();  //  O's turn if last move belongs to player with x symbol
+
         } else {
-
             expectedPlayerId = game.getPlayerXId();
-
         }
 
         if (!playerId.equals(expectedPlayerId)) {
-
             throw new InvalidTurnException(ErrorMessages.NOT_THIS_PLAYERS_TURN.getMessage());
-
         }
     }
 
@@ -304,6 +302,7 @@ public class GameServiceImpl implements GameService {
     private PlayerSymbol determinePlayerSymbol(Game game, UUID playerId) {
 
         if (playerId.equals(game.getPlayerXId())) {
+
             return PlayerSymbol.X;
         }
 
@@ -407,9 +406,7 @@ public class GameServiceImpl implements GameService {
         updateRoomForRematch(game);
         updatePlayerGameResults(game, winnerId);
 
-        UUID loserId = winnerId.equals(game.getPlayerXId())
-                ? game.getPlayerOId()
-                : game.getPlayerXId();
+        UUID loserId = winnerId.equals(game.getPlayerXId()) ? game.getPlayerOId() : game.getPlayerXId();
 
         playerService.recordWinAndLoss(winnerId, loserId);
         playerService.recordGamePlayed(winnerId);

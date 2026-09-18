@@ -110,7 +110,7 @@ public class PlayerServiceImpl implements PlayerService {
 
     private Player getPlayer(UUID playerId) {
         return playerRepository.findById(playerId).orElseThrow(() ->
-                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
+                new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
     }
 
 }
