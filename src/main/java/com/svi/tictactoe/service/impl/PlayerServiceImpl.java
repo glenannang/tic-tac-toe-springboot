@@ -2,9 +2,9 @@ package com.svi.tictactoe.service.impl;
 
 import com.svi.tictactoe.constant.ErrorMessages;
 import com.svi.tictactoe.constant.SuccessMessages;
-import com.svi.tictactoe.dto.response.CreatePlayerResponse;
+import com.svi.tictactoe.dto.response.player.CreatePlayerResponse;
 import com.svi.tictactoe.entity.Player;
-import com.svi.tictactoe.exception.PlayerDoesNotExistException;
+import com.svi.tictactoe.exception.player.PlayerDoesNotExistException;
 import com.svi.tictactoe.mapper.PlayerMapper;
 import com.svi.tictactoe.repository.PlayerRepository;
 import com.svi.tictactoe.service.PlayerService;
@@ -71,7 +71,6 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public void recordGamePlayed(UUID playerId) {
-
         Player player = getPlayer(playerId);
         player.setGamesPlayed(player.getGamesPlayed() + 1);
         playerRepository.save(player);

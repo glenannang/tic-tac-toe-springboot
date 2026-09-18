@@ -1,9 +1,9 @@
 package com.svi.tictactoe.mapper;
 
-import com.svi.tictactoe.dto.response.BoardStatusResponse;
-import com.svi.tictactoe.dto.response.CreateGameResponse;
-import com.svi.tictactoe.dto.response.GameStatusResponse;
-import com.svi.tictactoe.dto.response.RemoveGameResponse;
+import com.svi.tictactoe.dto.response.game.BoardStatusResponse;
+import com.svi.tictactoe.dto.response.game.CreateGameResponse;
+import com.svi.tictactoe.dto.response.game.GameStatusResponse;
+import com.svi.tictactoe.dto.response.game.RemoveGameResponse;
 import com.svi.tictactoe.entity.Game;
 import com.svi.tictactoe.enums.PlayerSymbol;
 import org.springframework.stereotype.Component;

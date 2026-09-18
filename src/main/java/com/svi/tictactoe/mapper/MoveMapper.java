@@ -1,7 +1,6 @@
 package com.svi.tictactoe.mapper;
 
-import com.svi.tictactoe.dto.response.AddMoveResponse;
-import com.svi.tictactoe.entity.Move;
+import com.svi.tictactoe.dto.response.game.AddMoveResponse;
 import org.springframework.stereotype.Component;
 
 @Component

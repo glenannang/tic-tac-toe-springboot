@@ -1,6 +1,6 @@
 package com.svi.tictactoe.mapper;
 
-import com.svi.tictactoe.dto.response.CreatePlayerResponse;
+import com.svi.tictactoe.dto.response.player.CreatePlayerResponse;
 import com.svi.tictactoe.entity.Player;
 import org.springframework.stereotype.Component;
 

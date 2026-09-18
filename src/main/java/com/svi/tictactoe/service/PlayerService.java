@@ -1,6 +1,6 @@
 package com.svi.tictactoe.service;
 
-import com.svi.tictactoe.dto.response.CreatePlayerResponse;
+import com.svi.tictactoe.dto.response.player.CreatePlayerResponse;
 
 import java.util.UUID;
 

@@ -1,11 +1,11 @@
 package com.svi.tictactoe.service.impl;
 
 import com.svi.tictactoe.constant.ErrorMessages;
-import com.svi.tictactoe.dto.response.LeaderboardEntryResponse;
-import com.svi.tictactoe.dto.response.LeaderboardResponse;
-import com.svi.tictactoe.dto.response.PlayerRankResponse;
+import com.svi.tictactoe.dto.response.leaderboard.LeaderboardEntryResponse;
+import com.svi.tictactoe.dto.response.leaderboard.LeaderboardResponse;
+import com.svi.tictactoe.dto.response.player.PlayerRankResponse;
 import com.svi.tictactoe.entity.Player;
-import com.svi.tictactoe.exception.PlayerDoesNotExistException;
+import com.svi.tictactoe.exception.player.PlayerDoesNotExistException;
 import com.svi.tictactoe.mapper.LeaderboardMapper;
 import com.svi.tictactoe.repository.PlayerRepository;
 import com.svi.tictactoe.service.LeaderboardService;
@@ -21,7 +21,8 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     private final PlayerRepository playerRepository;
     private final LeaderboardMapper leaderboardMapper;
 
-    public LeaderboardServiceImpl(PlayerRepository playerRepository, LeaderboardMapper leaderboardMapper) {
+    public LeaderboardServiceImpl(PlayerRepository playerRepository,
+                                  LeaderboardMapper leaderboardMapper) {
         this.playerRepository = playerRepository;
         this.leaderboardMapper = leaderboardMapper;
     }
@@ -34,7 +35,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         //compare wins
         players.sort((player1, player2) -> {return Integer.compare(player2.getWins(), player1.getWins());});
 
-        // ranking
+        //ranking
         List<LeaderboardEntryResponse> entries = new ArrayList<>();
         int rank = 0;
         int previousWins = -1;
@@ -56,7 +57,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     }
 
     @Override
-    public PlayerRankResponse getPlayerStatsandRank(UUID playerId) {
+    public PlayerRankResponse getPlayerStatsAndRank(UUID playerId) {
 
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));

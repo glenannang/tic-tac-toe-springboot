@@ -1,9 +1,9 @@
 package com.svi.tictactoe.mapper;
 
-import com.svi.tictactoe.dto.response.LeaveRoomResponse;
-import com.svi.tictactoe.dto.response.RematchResponse;
-import com.svi.tictactoe.dto.response.RoomResponse;
-import com.svi.tictactoe.dto.response.RoomStatusResponse;
+import com.svi.tictactoe.dto.response.room.LeaveRoomResponse;
+import com.svi.tictactoe.dto.response.room.RematchResponse;
+import com.svi.tictactoe.dto.response.room.RoomResponse;
+import com.svi.tictactoe.dto.response.room.RoomStatusResponse;
 import com.svi.tictactoe.entity.Room;
 import com.svi.tictactoe.enums.PlayerSymbol;
 import com.svi.tictactoe.enums.RoomStatus;

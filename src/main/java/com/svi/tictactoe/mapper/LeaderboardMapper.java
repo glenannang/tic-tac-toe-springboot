@@ -1,8 +1,8 @@
 package com.svi.tictactoe.mapper;
 
-import com.svi.tictactoe.dto.response.LeaderboardEntryResponse;
-import com.svi.tictactoe.dto.response.LeaderboardResponse;
-import com.svi.tictactoe.dto.response.PlayerRankResponse;
+import com.svi.tictactoe.dto.response.leaderboard.LeaderboardEntryResponse;
+import com.svi.tictactoe.dto.response.leaderboard.LeaderboardResponse;
+import com.svi.tictactoe.dto.response.player.PlayerRankResponse;
 import com.svi.tictactoe.entity.Player;
 import org.springframework.stereotype.Component;
 

@@ -1,12 +1,24 @@
 package com.svi.tictactoe.exception;
 
 import com.svi.tictactoe.constant.ErrorMessages;
+import com.svi.tictactoe.exception.game.GameAlreadyFinishedException;
+import com.svi.tictactoe.exception.game.GameDoesNotExistException;
+import com.svi.tictactoe.exception.game.InvalidTurnException;
+import com.svi.tictactoe.exception.game.PositionAlreadyTakenException;
+import com.svi.tictactoe.exception.player.PlayerAlreadyInRoomException;
+import com.svi.tictactoe.exception.player.PlayerDoesNotExistException;
+import com.svi.tictactoe.exception.player.PlayerNotInGameException;
+import com.svi.tictactoe.exception.player.PlayerNotInRoomException;
+import com.svi.tictactoe.exception.room.RoomAlreadyExistsException;
+import com.svi.tictactoe.exception.room.RoomDoesNotExistException;
+import com.svi.tictactoe.exception.room.RoomUnavailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import tools.jackson.databind.exc.InvalidFormatException;
 
 import java.util.UUID;
@@ -20,8 +32,8 @@ public class GlobalExceptionHandler {
             GameDoesNotExistException.class,
             PlayerDoesNotExistException.class
     })
-    public ResponseEntity<String> handleNotFound(RuntimeException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(exception.getMessage()));
     }
 
 
@@ -33,8 +45,8 @@ public class GlobalExceptionHandler {
             RoomAlreadyExistsException.class,
             RoomUnavailableException.class
     })
-    public ResponseEntity<String> handleConflict(RuntimeException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(exception.getMessage()));
     }
 
     @ExceptionHandler({
@@ -42,43 +54,54 @@ public class GlobalExceptionHandler {
             PlayerNotInRoomException.class
     })
 
-    public ResponseEntity<String> handleForbidden(RuntimeException exception) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
+    public ResponseEntity<ErrorResponse> handleForbidden(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationErrors(MethodArgumentNotValidException exception) {
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException exception) {
 
         String message = exception.getBindingResult()
                 .getFieldErrors()
                 .getFirst()
                 .getDefaultMessage();
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(message));
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException exception) {
+
+        if (exception.getRequiredType() == UUID.class) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse(ErrorMessages.INVALID_UUID.getMessage()));
+        }
+
+        return ResponseEntity.badRequest().body(new ErrorResponse(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage()));
+    }
+
+
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<String> handleInvalidRequestBody(
-            HttpMessageNotReadableException exception) {
+    public ResponseEntity<ErrorResponse> handleInvalidRequestBody(HttpMessageNotReadableException exception) {
 
         if (exception.getCause() instanceof InvalidFormatException invalidFormatException
                 && invalidFormatException.getTargetType() == UUID.class) {
 
-            return ResponseEntity
-                    .badRequest()
-                    .body("ID must be a valid UUID.");
+            return ResponseEntity.badRequest().body(new ErrorResponse(ErrorMessages.INVALID_UUID.getMessage()));
         }
 
-        return ResponseEntity
-                .badRequest()
-                .body("Invalid request format.");
+        return ResponseEntity.badRequest().body(new ErrorResponse(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleUnexpectedException(
-            Exception exception) {
+    public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception exception) {
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorMessages.UNEXPECTED_INTERNAL_SERVER_ERROR.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ErrorMessages.UNEXPECTED_INTERNAL_SERVER_ERROR.getMessage()));
     }
+
+
+
+
 
 }
