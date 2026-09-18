@@ -26,6 +26,8 @@ import com.svi.tictactoe.repository.RoomRepository;
 import com.svi.tictactoe.service.GameService;
 import com.svi.tictactoe.service.PlayerService;
 import com.svi.tictactoe.util.BoardUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -34,6 +36,8 @@ import java.util.UUID;
 
 @Service
 public class GameServiceImpl implements GameService {
+
+    private static final Logger logger = LoggerFactory.getLogger(GameServiceImpl.class);
 
     private final GameRepository gameRepository;
     private final MoveRepository moveRepository;
@@ -104,6 +108,7 @@ public class GameServiceImpl implements GameService {
 
         savePlayerGames(savedGame);
 
+        logger.info("Game created for room {} with game {}", roomCode, savedGame.getGameId());
         return savedGame;
     }
 
@@ -139,6 +144,7 @@ public class GameServiceImpl implements GameService {
         Move savedMove = moveRepository.save(move);
         existingMoves.add(savedMove);
         int moveNumber = existingMoves.size();
+        logger.info("Move {} successfully saved for game {}", moveNumber, gameId);
 
         // check if the move cause a win/draw
         if (gameEngine.hasWon(existingMoves, symbol)) {
@@ -189,6 +195,7 @@ public class GameServiceImpl implements GameService {
         playerService.recordIncompleteGame(game.getPlayerXId(), game.getPlayerOId());
         playerService.recordGamePlayed(game.getPlayerXId());
         playerService.recordGamePlayed(game.getPlayerOId());
+        logger.info("Game {} abandoned", gameId);
     }
 
 
@@ -407,6 +414,7 @@ public class GameServiceImpl implements GameService {
         playerService.recordWinAndLoss(winnerId, loserId);
         playerService.recordGamePlayed(winnerId);
         playerService.recordGamePlayed(loserId);
+        logger.info("Game {} won", game.getGameId());
 
     }
 
@@ -425,6 +433,7 @@ public class GameServiceImpl implements GameService {
 
         playerService.recordGamePlayed(game.getPlayerXId());
         playerService.recordGamePlayed(game.getPlayerOId());
+        logger.info("Game {} drawn", game.getGameId());
 
     }
 

@@ -23,6 +23,8 @@ import com.svi.tictactoe.service.GameService;
 import com.svi.tictactoe.service.PlayerService;
 import com.svi.tictactoe.service.RoomService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -30,6 +32,8 @@ import java.util.UUID;
 
 @Service
 public class RoomServiceImpl implements RoomService {
+
+    private static final Logger logger = LoggerFactory.getLogger(RoomServiceImpl.class);
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
@@ -75,6 +79,7 @@ public class RoomServiceImpl implements RoomService {
 
         roomRepository.save(room);
 
+        logger.info("Room created successfully with code {}", request.getRoomCode());
         return roomMapper.toRoomResponse(room, request.getPlayerId(),PlayerSymbol.X,SuccessMessages.ROOM_CREATED_SUCCESSFULLY.getMessage());
 
     }
@@ -109,6 +114,7 @@ public class RoomServiceImpl implements RoomService {
         room.setUpdatedAt(Instant.now());
         roomRepository.save(room);
 
+        logger.info("Player joined room {}", roomCode);
         return roomMapper.toRoomResponse(room, playerId, PlayerSymbol.O,SuccessMessages.ROOM_JOINED_SUCCESSFULLY.getMessage());
 
     }
@@ -149,6 +155,7 @@ public class RoomServiceImpl implements RoomService {
         room.setUpdatedAt(Instant.now());
         roomRepository.save(room);
 
+        logger.info("Player left room {}", roomCode);
         return roomMapper.toLeaveRoomResponse(SuccessMessages.ROOM_LEFT_SUCCESSFULLY.getMessage());
     }
 
@@ -181,6 +188,7 @@ public class RoomServiceImpl implements RoomService {
 
         // Only one player has accepted so far
         if (!(room.isHostRematch() && room.isGuestRematch())) {
+            logger.info("Rematch requested for room {}; waiting for the other player", roomCode);
             return roomMapper.toRematchResponse(SuccessMessages.WAITING_FOR_OTHER_PLAYER_TO_ACCEPT_REMATCH.getMessage(), RoomStatus.REMATCH, null);
         }
 
@@ -209,6 +217,7 @@ public class RoomServiceImpl implements RoomService {
         newRoom.setUpdatedAt(Instant.now());
 
         roomRepository.save(newRoom);
+        logger.info("Rematch game started for room {} with game {}", roomCode, newGame.getGameId());
         return roomMapper.toRematchResponse(SuccessMessages.REMATCH_STARTED.getMessage(), RoomStatus.IN_GAME, newGame.getGameId());
     }
 

@@ -8,12 +8,16 @@ import com.svi.tictactoe.exception.player.PlayerDoesNotExistException;
 import com.svi.tictactoe.mapper.PlayerMapper;
 import com.svi.tictactoe.repository.PlayerRepository;
 import com.svi.tictactoe.service.PlayerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 public class PlayerServiceImpl implements PlayerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PlayerServiceImpl.class);
 
     private final PlayerRepository playerRepository;
     private final PlayerMapper playerMapper;
@@ -36,6 +40,7 @@ public class PlayerServiceImpl implements PlayerService {
         player.setIncompleteGames(0);
         Player savedPlayer = playerRepository.save(player);
 
+        logger.info("Player created successfully with id {}", savedPlayer.getPlayerId());
         return playerMapper.toCreatePlayerResponse(savedPlayer, SuccessMessages.PLAYER_CREATED_SUCCESSFULLY.getMessage());
     }
 
