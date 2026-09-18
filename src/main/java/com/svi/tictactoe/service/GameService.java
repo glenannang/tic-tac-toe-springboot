@@ -13,4 +13,6 @@ public interface GameService {
     GameStatusResponse getGameStatus(UUID gameId);
     RemoveGameResponse removeGame(UUID gameId);
     BoardStatusResponse getBoardStatus(UUID gameId);
+    void abandonGame(UUID gameId);
+
 }

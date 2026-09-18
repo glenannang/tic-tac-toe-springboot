@@ -145,34 +145,23 @@ public class RoomServiceImpl implements RoomService {
         boolean isHost = playerId.equals(room.getHostPlayerId());
         boolean isGuest = playerId.equals(room.getGuestPlayerId());
 
-        if (!isHost && !isGuest) {throw new PlayerNotInRoomException(ErrorMessages.PLAYER_NOT_IN_ROOM.getMessage());}
+        if (!isHost && !isGuest) {
+            throw new PlayerNotInRoomException(ErrorMessages.PLAYER_NOT_IN_ROOM.getMessage());
+        }
 
-        if (room.getStatus() == RoomStatus.CLOSED) {return roomMapper.toLeaveRoomResponse(SuccessMessages.ROOM_ALREADY_CLOSED.getMessage());}
-
+        if (room.getStatus() == RoomStatus.CLOSED) {
+            return roomMapper.toLeaveRoomResponse(SuccessMessages.ROOM_ALREADY_CLOSED.getMessage());
+        }
 
         //update game status
         if (room.getStatus() == RoomStatus.IN_GAME) {
-
-            Game game = gameRepository.findById(room.getGameId()).orElseThrow(() ->
-                            new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
-
-            game.setStatus(GameStatus.ABANDONED);
-            game.setResult(GameResult.INCOMPLETE);
-            game.setEndedAt(Instant.now());
-
-            gameRepository.save(game);
-            updatePlayerGameResultsForIncomplete(game);
-            playerService.recordIncompleteGame(game.getPlayerXId(), game.getPlayerOId());
-
-            playerService.recordGamePlayed(game.getPlayerXId());
-            playerService.recordGamePlayed(game.getPlayerOId());
+            gameService.abandonGame(room.getGameId());
         }
 
         //update room status
         room.setStatus(RoomStatus.CLOSED);
         room.setUpdatedAt(Instant.now());
         roomRepository.save(room);
-
 
         return roomMapper.toLeaveRoomResponse(SuccessMessages.ROOM_LEFT_SUCCESSFULLY.getMessage());
     }

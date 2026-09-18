@@ -188,6 +188,27 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    public void abandonGame(UUID gameId) {
+
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
+
+        game.setStatus(GameStatus.ABANDONED);
+        game.setResult(GameResult.INCOMPLETE);
+        game.setEndedAt(Instant.now());
+
+        gameRepository.save(game);
+
+        updatePlayerGameResultsForIncomplete(game);
+
+        playerService.recordIncompleteGame(game.getPlayerXId(), game.getPlayerOId());
+        playerService.recordGamePlayed(game.getPlayerXId());
+        playerService.recordGamePlayed(game.getPlayerOId());
+    }
+
+
+
+    @Override
     public RemoveGameResponse removeGame(UUID gameId) {
 
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
@@ -196,18 +217,8 @@ public class GameServiceImpl implements GameService {
             throw new GameAlreadyFinishedException(ErrorMessages.GAME_CANNOT_BE_REMOVED.getMessage());
         }
 
-        game.setStatus(GameStatus.ABANDONED);
-        game.setResult(GameResult.INCOMPLETE);
-        game.setEndedAt(Instant.now());
-
-        gameRepository.save(game);
-        updatePlayerGameResultsForIncomplete(game);
+        abandonGame(gameId);
         updateRoomAfterGameRemoval(game);
-
-        playerService.recordIncompleteGame(game.getPlayerXId(), game.getPlayerOId());
-        playerService.recordGamePlayed(game.getPlayerXId());
-        playerService.recordGamePlayed(game.getPlayerOId());
-
         return gameMapper.toRemoveGameResponse(SuccessMessages.GAME_REMOVED_SUCCESSFULLY.getMessage());
     }
 
@@ -278,6 +289,8 @@ public class GameServiceImpl implements GameService {
     }
 
 
+    // HELPER FUNCTIONS FOR UPDATING RECORDS
+
     private PlayerSymbol determinePlayerSymbol(Game game, UUID playerId) {
 
         if (playerId.equals(game.getPlayerXId())) {
@@ -316,9 +329,7 @@ public class GameServiceImpl implements GameService {
 
         PlayerGame winnerGame = playerGameRepository.findById(winnerKey).orElseThrow();
 
-        UUID loserId = winnerId.equals(game.getPlayerXId())
-                ? game.getPlayerOId()
-                : game.getPlayerXId();
+        UUID loserId = winnerId.equals(game.getPlayerXId()) ? game.getPlayerOId() : game.getPlayerXId();
 
         PlayerGameKey loserKey = new PlayerGameKey();
         loserKey.setPlayerId(loserId);
@@ -393,12 +404,7 @@ public class GameServiceImpl implements GameService {
         room.setStatus(RoomStatus.READY);
         room.setGameId(null);
         room.setUpdatedAt(Instant.now());
-
         roomRepository.save(room);
     }
-
-
-
-
 
 }
