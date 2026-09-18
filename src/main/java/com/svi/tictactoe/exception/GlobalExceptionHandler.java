@@ -1,6 +1,6 @@
-package com.svi.tictactoe.exception.mapper;
+package com.svi.tictactoe.exception;
 
-import com.svi.tictactoe.exception.*;
+import com.svi.tictactoe.constant.ErrorMessages;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,6 +53,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleUnexpectedException(
+            Exception exception) {
 
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorMessages.UNEXPECTED_INTERNAL_SERVER_ERROR.getMessage());
+    }
 
 }

@@ -1,5 +1,7 @@
 package com.svi.tictactoe.service.impl;
 
+import com.svi.tictactoe.constant.ErrorMessages;
+import com.svi.tictactoe.constant.SuccessMessages;
 import com.svi.tictactoe.dto.response.CreatePlayerResponse;
 import com.svi.tictactoe.entity.Player;
 import com.svi.tictactoe.exception.PlayerDoesNotExistException;
@@ -34,13 +36,13 @@ public class PlayerServiceImpl implements PlayerService {
         player.setIncompleteGames(0);
         Player savedPlayer = playerRepository.save(player);
 
-        return playerMapper.toCreatePlayerResponse(savedPlayer, "Player created successfully.");
+        return playerMapper.toCreatePlayerResponse(savedPlayer, SuccessMessages.PLAYER_CREATED_SUCCESSFULLY.getMessage());
     }
 
     @Override
     public void validatePlayerExists(UUID playerId) {
         if (!playerRepository.existsById(playerId)) {
-            throw new PlayerDoesNotExistException("Player does not exist.");
+            throw new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage());
         }
     }
 
@@ -48,10 +50,10 @@ public class PlayerServiceImpl implements PlayerService {
     public void recordWinAndLoss(UUID winnerId, UUID loserId) {
 
         Player winner = playerRepository.findById(winnerId).orElseThrow(() ->
-                        new PlayerDoesNotExistException("Winner does not exist."));
+                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
 
         Player loser = playerRepository.findById(loserId).orElseThrow(() ->
-                        new PlayerDoesNotExistException("Loser does not exist."));
+                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
 
         winner.setWins(winner.getWins() + 1);
         loser.setLosses(loser.getLosses() + 1);
@@ -64,10 +66,10 @@ public class PlayerServiceImpl implements PlayerService {
     public void recordDraw(UUID playerXId, UUID playerOId) {
 
         Player playerX = playerRepository.findById(playerXId).orElseThrow(() ->
-                        new PlayerDoesNotExistException("Player X does not exist."));
+                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
 
         Player playerO = playerRepository.findById(playerOId).orElseThrow(() ->
-                        new PlayerDoesNotExistException("Player O does not exist."));
+                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
 
         playerX.setDraws(playerX.getDraws() + 1);
         playerO.setDraws(playerO.getDraws() + 1);
@@ -80,7 +82,7 @@ public class PlayerServiceImpl implements PlayerService {
     public void recordGamePlayed(UUID playerId) {
 
         Player player = playerRepository.findById(playerId).orElseThrow(() ->
-                        new PlayerDoesNotExistException("Player does not exist."));
+                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
 
         player.setGamesPlayed(player.getGamesPlayed() + 1);
         playerRepository.save(player);
@@ -90,10 +92,10 @@ public class PlayerServiceImpl implements PlayerService {
     public void recordIncompleteGame(UUID playerXId, UUID playerOId) {
 
         Player playerX = playerRepository.findById(playerXId).orElseThrow(() ->
-                        new PlayerDoesNotExistException("Player X does not exist."));
+                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
 
         Player playerO = playerRepository.findById(playerOId)
-                .orElseThrow(() -> new PlayerDoesNotExistException("Player O does not exist."));
+                .orElseThrow(() -> new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
 
         playerX.setIncompleteGames(playerX.getIncompleteGames() + 1);
         playerO.setIncompleteGames(playerO.getIncompleteGames() + 1);

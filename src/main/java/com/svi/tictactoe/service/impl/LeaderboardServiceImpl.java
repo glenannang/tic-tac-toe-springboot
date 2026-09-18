@@ -1,5 +1,6 @@
 package com.svi.tictactoe.service.impl;
 
+import com.svi.tictactoe.constant.ErrorMessages;
 import com.svi.tictactoe.dto.response.LeaderboardEntryResponse;
 import com.svi.tictactoe.dto.response.LeaderboardResponse;
 import com.svi.tictactoe.dto.response.PlayerRankResponse;
@@ -58,7 +59,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     public PlayerRankResponse getPlayerRank(UUID playerId) {
 
         Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new PlayerDoesNotExistException("Player does not exist."));
+                .orElseThrow(() -> new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
 
         List<Player> players = playerRepository.findAll();
 

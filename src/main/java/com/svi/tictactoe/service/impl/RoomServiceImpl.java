@@ -1,5 +1,7 @@
 package com.svi.tictactoe.service.impl;
 
+import com.svi.tictactoe.constant.ErrorMessages;
+import com.svi.tictactoe.constant.SuccessMessages;
 import com.svi.tictactoe.dto.request.CreateRoomRequest;
 import com.svi.tictactoe.dto.request.JoinRoomRequest;
 import com.svi.tictactoe.dto.request.LeaveRoomRequest;
@@ -57,7 +59,7 @@ public class RoomServiceImpl implements RoomService {
 
         // CHECK IF ROOM ALREADY EXISTS
         if (roomRepository.findFirstByKeyRoomCode(roomCode).isPresent()) {
-            throw new RoomAlreadyExistsException("Room already exists.");
+            throw new RoomAlreadyExistsException(ErrorMessages.ROOM_ALREADY_EXISTS.getMessage());
         }
 
         // IF ROOM DOES NOT EXIST YET
@@ -77,7 +79,7 @@ public class RoomServiceImpl implements RoomService {
 
         roomRepository.save(room);
 
-        return roomMapper.toRoomResponse(room, request.getPlayerId(),PlayerSymbol.X,"Room created successfully.");
+        return roomMapper.toRoomResponse(room, request.getPlayerId(),PlayerSymbol.X,SuccessMessages.ROOM_CREATED_SUCCESSFULLY.getMessage());
 
     }
 
@@ -90,22 +92,22 @@ public class RoomServiceImpl implements RoomService {
 
         //get latest row with the given roomCode
         Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
-                        new RoomDoesNotExistException("Room does not exist."));
+                        new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage()));
 
         UUID playerId = request.getPlayerId();
 
         // closed room cannot be joined
         if (room.getStatus() == RoomStatus.CLOSED) {
-            throw new RoomUnavailableException("Cannot join. Room is already closed.");
+            throw new RoomUnavailableException(ErrorMessages.CANNOT_JOIN_CLOSED_ROOM.getMessage());
         }
 
         // prevents the same player to join
         if (playerId.equals(room.getHostPlayerId()) || playerId.equals(room.getGuestPlayerId())) {
-            throw new PlayerAlreadyInRoomException("Player is already in the room.");
+            throw new PlayerAlreadyInRoomException(ErrorMessages.PLAYER_ALREADY_IN_ROOM.getMessage());
         }
 
         if (room.getStatus() != RoomStatus.WAITING) {
-            throw new RoomUnavailableException("Cannot join. Room is already full.");
+            throw new RoomUnavailableException(ErrorMessages.CANNOT_JOIN_FULL_ROOM.getMessage());
         }
 
         room.setGuestPlayerId(request.getPlayerId());
@@ -113,7 +115,7 @@ public class RoomServiceImpl implements RoomService {
         room.setUpdatedAt(Instant.now());
         roomRepository.save(room);
 
-        return roomMapper.toRoomResponse(room, playerId, PlayerSymbol.O,"Room joined successfully.");
+        return roomMapper.toRoomResponse(room, playerId, PlayerSymbol.O,SuccessMessages.ROOM_JOINED_SUCCESSFULLY.getMessage());
 
     }
 
@@ -122,7 +124,7 @@ public class RoomServiceImpl implements RoomService {
         Optional<Room> roomOptional = roomRepository.findFirstByKeyRoomCode(roomCode);
 
         if (roomOptional.isEmpty()) {
-            throw new RoomDoesNotExistException("Room does not exist.");
+            throw new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage());
         }
 
         Room room = roomOptional.get();
@@ -136,23 +138,23 @@ public class RoomServiceImpl implements RoomService {
         playerService.validatePlayerExists(request.getPlayerId());
 
         Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() ->
-                        new RoomDoesNotExistException("Room does not exist."));
+                        new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage()));
 
         UUID playerId = request.getPlayerId();
 
         boolean isHost = playerId.equals(room.getHostPlayerId());
         boolean isGuest = playerId.equals(room.getGuestPlayerId());
 
-        if (!isHost && !isGuest) {throw new PlayerNotInRoomException("Player does not belong to this room.");}
+        if (!isHost && !isGuest) {throw new PlayerNotInRoomException(ErrorMessages.PLAYER_NOT_IN_ROOM.getMessage());}
 
-        if (room.getStatus() == RoomStatus.CLOSED) {return roomMapper.toLeaveRoomResponse("Room is already closed.");}
+        if (room.getStatus() == RoomStatus.CLOSED) {return roomMapper.toLeaveRoomResponse(SuccessMessages.ROOM_ALREADY_CLOSED.getMessage());}
 
 
         //update game status
         if (room.getStatus() == RoomStatus.IN_GAME) {
 
             Game game = gameRepository.findById(room.getGameId()).orElseThrow(() ->
-                            new GameDoesNotExistException("Game does not exist."));
+                            new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
 
             game.setStatus(GameStatus.ABANDONED);
             game.setResult(GameResult.INCOMPLETE);
@@ -172,7 +174,7 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.save(room);
 
 
-        return roomMapper.toLeaveRoomResponse("Room left successfully.");
+        return roomMapper.toLeaveRoomResponse(SuccessMessages.ROOM_LEFT_SUCCESSFULLY.getMessage());
     }
 
     @Override
@@ -180,16 +182,16 @@ public class RoomServiceImpl implements RoomService {
         // Check if player exists
         playerService.validatePlayerExists(request.getPlayerId());
 
-        Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() -> new RoomDoesNotExistException("Room does not exist."));
+        Room room = roomRepository.findFirstByKeyRoomCode(roomCode).orElseThrow(() -> new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage()));
 
-        if (room.getStatus() != RoomStatus.REMATCH) {throw new RoomUnavailableException("Room is not available for a rematch.");}
+        if (room.getStatus() != RoomStatus.REMATCH) {throw new RoomUnavailableException(ErrorMessages.ROOM_NOT_AVAILABLE_FOR_REMATCH.getMessage());}
 
         UUID playerId = request.getPlayerId();
 
         boolean isHost = playerId.equals(room.getHostPlayerId());
         boolean isGuest = playerId.equals(room.getGuestPlayerId());
 
-        if (!isHost && !isGuest) {throw new PlayerNotInRoomException("Player does not belong to this room.");}
+        if (!isHost && !isGuest) {throw new PlayerNotInRoomException(ErrorMessages.PLAYER_NOT_IN_ROOM.getMessage());}
 
         if (isHost) {
             room.setHostRematch(true);
@@ -202,7 +204,7 @@ public class RoomServiceImpl implements RoomService {
 
         // Only one player has accepted so far
         if (!(room.isHostRematch() && room.isGuestRematch())) {
-            return roomMapper.toRematchResponse("Waiting for the other player to accept the rematch.", RoomStatus.REMATCH, null);
+            return roomMapper.toRematchResponse(SuccessMessages.WAITING_FOR_OTHER_PLAYER_TO_ACCEPT_REMATCH.getMessage(), RoomStatus.REMATCH, null);
         }
 
         // both players already accepted rematch
@@ -243,7 +245,7 @@ public class RoomServiceImpl implements RoomService {
         newRoom.setUpdatedAt(Instant.now());
 
         roomRepository.save(newRoom);
-        return roomMapper.toRematchResponse("Rematch started.", RoomStatus.IN_GAME, newGameId);
+        return roomMapper.toRematchResponse(SuccessMessages.REMATCH_STARTED.getMessage(), RoomStatus.IN_GAME, newGameId);
     }
 
 

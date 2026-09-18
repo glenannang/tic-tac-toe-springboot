@@ -1,5 +1,7 @@
 package com.svi.tictactoe.service.impl;
 
+import com.svi.tictactoe.constant.ErrorMessages;
+import com.svi.tictactoe.constant.SuccessMessages;
 import com.svi.tictactoe.dto.request.AddMoveRequest;
 import com.svi.tictactoe.dto.request.CreateGameRequest;
 import com.svi.tictactoe.dto.response.*;
@@ -62,12 +64,12 @@ public class GameServiceImpl implements GameService {
     public CreateGameResponse createGame(CreateGameRequest request){
         //check if room exists
         Room room = roomRepository.findFirstByKeyRoomCode(request.getRoomCode()).orElseThrow(() ->
-                        new RoomDoesNotExistException("Room does not exist."));
+                        new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage()));
 
-        if (room.getStatus() == RoomStatus.CLOSED) {throw new RoomUnavailableException("Cannot create game. Room is already closed.");}
-        if (room.getStatus() == RoomStatus.IN_GAME) {throw new RoomUnavailableException("Cannot create game. Room already has an ongoing game.");}
-        if (room.getStatus() == RoomStatus.REMATCH) {throw new RoomUnavailableException("Cannot create game. Room is waiting for a rematch.");}
-        if (room.getStatus() == RoomStatus.WAITING) {throw new RoomUnavailableException("Cannot create game. Waiting for another player to join.");}
+        if (room.getStatus() == RoomStatus.CLOSED) {throw new RoomUnavailableException(ErrorMessages.CANNOT_CREATE_GAME_ROOM_CLOSED.getMessage());}
+        if (room.getStatus() == RoomStatus.IN_GAME) {throw new RoomUnavailableException(ErrorMessages.CANNOT_CREATE_GAME_ROOM_HAS_ONGOING_GAME.getMessage());}
+        if (room.getStatus() == RoomStatus.REMATCH) {throw new RoomUnavailableException(ErrorMessages.CANNOT_CREATE_GAME_ROOM_WAITING_FOR_REMATCH.getMessage());}
+        if (room.getStatus() == RoomStatus.WAITING) {throw new RoomUnavailableException(ErrorMessages.CANNOT_CREATE_GAME_WAITING_FOR_PLAYER.getMessage());}
 
         UUID gameId = UUID.randomUUID();
         Game game = new Game();
@@ -91,7 +93,7 @@ public class GameServiceImpl implements GameService {
 
         roomRepository.save(room);
 
-        return gameMapper.toCreateGameResponse(savedGame, "Game created successfully.");
+        return gameMapper.toCreateGameResponse(savedGame, SuccessMessages.GAME_CREATED_SUCCESSFULLY.getMessage());
     }
 
     public AddMoveResponse addMove(UUID gameId, AddMoveRequest request){
@@ -100,7 +102,7 @@ public class GameServiceImpl implements GameService {
 
         //check if game exists
         Game game = gameRepository.findById(gameId).orElseThrow(()
-                -> new GameDoesNotExistException("Game does not exist."));
+                -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
 
         List <Move> existingMoves = moveRepository.findByKeyGameId(gameId);
 
@@ -160,14 +162,14 @@ public class GameServiceImpl implements GameService {
             playerService.recordGamePlayed(game.getPlayerOId());
         }
         
-        return moveMapper.toAddMoveResponse(moveNumber, "Move saved successfully.");
+        return moveMapper.toAddMoveResponse(moveNumber, SuccessMessages.MOVE_SAVED_SUCCESSFULLY.getMessage());
 
     }
 
     @Override
     public GameStatusResponse getGameStatus(UUID gameId) {
 
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game does not exist."));
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
 
         List<Move> moves = moveRepository.findByKeyGameId(gameId);
 
@@ -188,10 +190,10 @@ public class GameServiceImpl implements GameService {
     @Override
     public RemoveGameResponse removeGame(UUID gameId) {
 
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game does not exist."));
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
 
         if (game.getStatus() != GameStatus.IN_PROGRESS) {
-            throw new GameAlreadyFinishedException("Game can no longer be removed.");
+            throw new GameAlreadyFinishedException(ErrorMessages.GAME_CANNOT_BE_REMOVED.getMessage());
         }
 
         game.setStatus(GameStatus.ABANDONED);
@@ -206,13 +208,13 @@ public class GameServiceImpl implements GameService {
         playerService.recordGamePlayed(game.getPlayerXId());
         playerService.recordGamePlayed(game.getPlayerOId());
 
-        return gameMapper.toRemoveGameResponse("Game removed successfully.");
+        return gameMapper.toRemoveGameResponse(SuccessMessages.GAME_REMOVED_SUCCESSFULLY.getMessage());
     }
 
     @Override
     public BoardStatusResponse getBoardStatus(UUID gameId) {
 
-        gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException("Game does not exist."));
+        gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
         List<Move> moves = moveRepository.findByKeyGameId(gameId);
         //build the board
         List<PlayerSymbol> board = BoardUtil.buildBoard(moves);
@@ -222,14 +224,12 @@ public class GameServiceImpl implements GameService {
 
 
 
-
-
     // HELPER FUNCTIONS FOR VALIDATING A MOVE REQUEST
 
     //check if player belongs to the game
     private void validatePlayer(Game game, UUID playerId) {
         if (!playerId.equals(game.getPlayerXId()) && !playerId.equals(game.getPlayerOId())) {
-            throw new PlayerNotInGameException("Player does not belong to this game.");
+            throw new PlayerNotInGameException(ErrorMessages.PLAYER_NOT_IN_GAME.getMessage());
         }
     }
 
@@ -237,7 +237,7 @@ public class GameServiceImpl implements GameService {
     private void validateGameInProgress(Game game){
 
         if(game.getStatus() != GameStatus.IN_PROGRESS){
-            throw new GameAlreadyFinishedException( "Game is no longer in progress.");
+            throw new GameAlreadyFinishedException(ErrorMessages.GAME_NO_LONGER_IN_PROGRESS.getMessage());
         }
 
     }
@@ -246,7 +246,8 @@ public class GameServiceImpl implements GameService {
     private void validatePositionAvailable(int position, List<Move> existingMoves) {
 
         for (Move move : existingMoves) {
-            if (move.getPosition() == position) {throw new PositionAlreadyTakenException("Position is already taken.");
+            if (move.getPosition() == position) {
+                throw new PositionAlreadyTakenException(ErrorMessages.POSITION_ALREADY_TAKEN.getMessage());
             }
         }
     }
@@ -257,7 +258,7 @@ public class GameServiceImpl implements GameService {
         // First move is always Player X
         if (existingMoves.isEmpty()) {
             if (!playerId.equals(game.getPlayerXId())) {
-                throw new InvalidTurnException("It is Player X's turn.");
+                throw new InvalidTurnException(ErrorMessages.PLAYER_X_TURN.getMessage());
             }
             return;
         }
@@ -272,7 +273,7 @@ public class GameServiceImpl implements GameService {
         }
 
         if (!playerId.equals(expectedPlayerId)) {
-            throw new InvalidTurnException("It is not this player's turn.");
+            throw new InvalidTurnException(ErrorMessages.NOT_THIS_PLAYERS_TURN.getMessage());
         }
     }
 
@@ -377,7 +378,7 @@ public class GameServiceImpl implements GameService {
     private void updateRoomForRematch(Game game) {
 
         Room room = roomRepository.findFirstByKeyRoomCode(game.getRoomCode()).orElseThrow(() ->
-                        new RoomDoesNotExistException("Room does not exist."));
+                        new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage()));
 
         room.setStatus(RoomStatus.REMATCH);
         room.setUpdatedAt(Instant.now());
@@ -387,7 +388,7 @@ public class GameServiceImpl implements GameService {
     private void updateRoomAfterGameRemoval(Game game) {
 
         Room room = roomRepository.findFirstByKeyRoomCode(game.getRoomCode()).orElseThrow(() ->
-                        new RoomDoesNotExistException("Room does not exist."));
+                        new RoomDoesNotExistException(ErrorMessages.ROOM_DOES_NOT_EXIST.getMessage()));
 
         room.setStatus(RoomStatus.READY);
         room.setGameId(null);
