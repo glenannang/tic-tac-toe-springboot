@@ -107,16 +107,16 @@ public class GameServiceImpl implements GameService {
         playerService.validatePlayerExists(request.getPlayerId());
 
         //check if game exists
-        Game game = gameRepository.findById(gameId).orElseThrow(()
-                -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
+        Game game = getGame(gameId);
 
         List <Move> existingMoves = moveRepository.findByKeyGameId(gameId);
 
         // Move validations
-        validatePlayer(game, request.getPlayerId());                        //Check if player belongs to the game
-        validateGameInProgress(game);                                       //Check if game is still on going
-        validatePositionAvailable(request.getPosition(), existingMoves);    // Check if position is available
-        validateTurn(game, request.getPlayerId(), existingMoves);           // Check if player's turn
+        validatePlayer(game, request.getPlayerId());
+        validateGameInProgress(game);
+        validateTurn(game, request.getPlayerId(), existingMoves);
+        validatePositionAvailable(request.getPosition(), existingMoves);
+
 
         Move move = new Move();
 
@@ -136,35 +136,10 @@ public class GameServiceImpl implements GameService {
 
         // check if the move cause a win/draw
         if (gameEngine.hasWon(existingMoves, symbol)) {
-            game.setStatus(GameStatus.FINISHED);
-            game.setResult(GameResult.WIN);
-            game.setWinnerId(request.getPlayerId());
-            game.setEndedAt(Instant.now());
-
-            gameRepository.save(game);
-            updateRoomForRematch(game);
-            updatePlayerGameResults(game, request.getPlayerId());
-
-            UUID winnerId = request.getPlayerId();
-            UUID loserId = winnerId.equals(game.getPlayerXId()) ? game.getPlayerOId() : game.getPlayerXId();
-
-            playerService.recordWinAndLoss(winnerId, loserId);
-            playerService.recordGamePlayed(winnerId);
-            playerService.recordGamePlayed(loserId);
+            handleWin(game, request.getPlayerId());
 
         } else if (gameEngine.isDraw(existingMoves)) {
-            game.setStatus(GameStatus.FINISHED);
-            game.setResult(GameResult.DRAW);
-            game.setWinnerId(null);
-            game.setEndedAt(Instant.now());
-
-            gameRepository.save(game);
-            updateRoomForRematch(game);
-            updatePlayerGameResultsForDraw(game);
-
-            playerService.recordDraw(game.getPlayerXId(), game.getPlayerOId());
-            playerService.recordGamePlayed(game.getPlayerXId());
-            playerService.recordGamePlayed(game.getPlayerOId());
+            handleDraw(game);
         }
         
         return moveMapper.toAddMoveResponse(moveNumber, SuccessMessages.MOVE_SAVED_SUCCESSFULLY.getMessage());
@@ -174,7 +149,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public GameStatusResponse getGameStatus(UUID gameId) {
 
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
+        Game game = getGame(gameId);
 
         List<Move> moves = moveRepository.findByKeyGameId(gameId);
 
@@ -195,8 +170,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public void abandonGame(UUID gameId) {
 
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
+        Game game = getGame(gameId);
 
         game.setStatus(GameStatus.ABANDONED);
         game.setResult(GameResult.INCOMPLETE);
@@ -212,11 +186,10 @@ public class GameServiceImpl implements GameService {
     }
 
 
-
     @Override
     public RemoveGameResponse removeGame(UUID gameId) {
 
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
+        Game game = getGame(gameId);
 
         if (game.getStatus() != GameStatus.IN_PROGRESS) {
             throw new GameAlreadyFinishedException(ErrorMessages.GAME_CANNOT_BE_REMOVED.getMessage());
@@ -230,7 +203,8 @@ public class GameServiceImpl implements GameService {
     @Override
     public BoardStatusResponse getBoardStatus(UUID gameId) {
 
-        gameRepository.findById(gameId).orElseThrow(() -> new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
+        Game game = getGame(gameId);
+
         List<Move> moves = moveRepository.findByKeyGameId(gameId);
         //build the board
         List<PlayerSymbol> board = BoardUtil.buildBoard(moves);
@@ -304,6 +278,11 @@ public class GameServiceImpl implements GameService {
 
     // HELPER FUNCTIONS FOR UPDATING RECORDS
 
+    private Game getGame(UUID gameId) {
+        return gameRepository.findById(gameId).orElseThrow(() ->
+                        new GameDoesNotExistException(ErrorMessages.GAME_DOES_NOT_EXIST.getMessage()));
+    }
+
     private PlayerSymbol determinePlayerSymbol(Game game, UUID playerId) {
 
         if (playerId.equals(game.getPlayerXId())) {
@@ -312,7 +291,6 @@ public class GameServiceImpl implements GameService {
 
         return PlayerSymbol.O;
     }
-
 
     private void savePlayerGames(Game game) {
 
@@ -410,6 +388,45 @@ public class GameServiceImpl implements GameService {
         room.setGameId(null);
         room.setUpdatedAt(Instant.now());
         roomRepository.save(room);
+    }
+
+    private void handleWin(Game game, UUID winnerId) {
+
+        game.setStatus(GameStatus.FINISHED);
+        game.setResult(GameResult.WIN);
+        game.setWinnerId(winnerId);
+        game.setEndedAt(Instant.now());
+
+        gameRepository.save(game);
+        updateRoomForRematch(game);
+        updatePlayerGameResults(game, winnerId);
+
+        UUID loserId = winnerId.equals(game.getPlayerXId())
+                ? game.getPlayerOId()
+                : game.getPlayerXId();
+
+        playerService.recordWinAndLoss(winnerId, loserId);
+        playerService.recordGamePlayed(winnerId);
+        playerService.recordGamePlayed(loserId);
+
+    }
+
+    private void handleDraw(Game game) {
+
+        game.setStatus(GameStatus.FINISHED);
+        game.setResult(GameResult.DRAW);
+        game.setWinnerId(null);
+        game.setEndedAt(Instant.now());
+
+        gameRepository.save(game);
+        updateRoomForRematch(game);
+        updatePlayerGameResultsForDraw(game);
+
+        playerService.recordDraw(game.getPlayerXId(), game.getPlayerOId());
+
+        playerService.recordGamePlayed(game.getPlayerXId());
+        playerService.recordGamePlayed(game.getPlayerOId());
+
     }
 
 }
