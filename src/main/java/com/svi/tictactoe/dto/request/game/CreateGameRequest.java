@@ -2,13 +2,15 @@ package com.svi.tictactoe.dto.request.game;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public class CreateGameRequest {
 
     @NotBlank(message = "Room code is required.")
+    @Size(min = 6, max = 10, message = "Room code must be between 6 and 10 characters.")
     @Pattern(
-            regexp = "^[0-9a-fA-F]{6}$",
-            message = "Room code must be a valid 6-character hexadecimal code."
+            regexp = "^[A-Za-z0-9]+$",
+            message = "Room code must contain only letters and numbers."
     )
     private String roomCode;
 
