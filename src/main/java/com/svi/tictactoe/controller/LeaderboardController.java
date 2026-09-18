@@ -1,7 +1,7 @@
 package com.svi.tictactoe.controller;
 
-import com.svi.tictactoe.dto.response.LeaderboardResponse;
-import com.svi.tictactoe.dto.response.PlayerRankResponse;
+import com.svi.tictactoe.dto.response.leaderboard.LeaderboardResponse;
+import com.svi.tictactoe.dto.response.player.PlayerRankResponse;
 import com.svi.tictactoe.service.LeaderboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/leaderboard")
+@RequestMapping("/api/v1/leaderboard")
 public class LeaderboardController {
 
     private final LeaderboardService leaderboardService;
@@ -29,7 +29,7 @@ public class LeaderboardController {
 
     @GetMapping("/{playerId}")
     public ResponseEntity<PlayerRankResponse> getPlayerStatsandRank(@PathVariable UUID playerId) {
-        PlayerRankResponse response = leaderboardService.getPlayerStatsandRank(playerId);
+        PlayerRankResponse response = leaderboardService.getPlayerStatsAndRank(playerId);
         return ResponseEntity.ok(response);
     }
 

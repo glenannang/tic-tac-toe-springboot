@@ -1,9 +1,9 @@
 package com.svi.tictactoe.controller;
 
 
-import com.svi.tictactoe.dto.request.AddMoveRequest;
-import com.svi.tictactoe.dto.request.CreateGameRequest;
-import com.svi.tictactoe.dto.response.*;
+import com.svi.tictactoe.dto.request.game.AddMoveRequest;
+import com.svi.tictactoe.dto.request.game.CreateGameRequest;
+import com.svi.tictactoe.dto.response.game.*;
 import com.svi.tictactoe.service.GameService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/games")
+@RequestMapping("/api/v1/games")
 public class GameController {
 
     private final GameService gameService;

@@ -1,13 +1,13 @@
 package com.svi.tictactoe.controller;
 
-import com.svi.tictactoe.dto.request.CreateRoomRequest;
-import com.svi.tictactoe.dto.request.JoinRoomRequest;
-import com.svi.tictactoe.dto.request.LeaveRoomRequest;
-import com.svi.tictactoe.dto.request.RematchRequest;
-import com.svi.tictactoe.dto.response.LeaveRoomResponse;
-import com.svi.tictactoe.dto.response.RematchResponse;
-import com.svi.tictactoe.dto.response.RoomResponse;
-import com.svi.tictactoe.dto.response.RoomStatusResponse;
+import com.svi.tictactoe.dto.request.room.CreateRoomRequest;
+import com.svi.tictactoe.dto.request.room.JoinRoomRequest;
+import com.svi.tictactoe.dto.request.room.LeaveRoomRequest;
+import com.svi.tictactoe.dto.request.room.RematchRequest;
+import com.svi.tictactoe.dto.response.room.LeaveRoomResponse;
+import com.svi.tictactoe.dto.response.room.RematchResponse;
+import com.svi.tictactoe.dto.response.room.RoomResponse;
+import com.svi.tictactoe.dto.response.room.RoomStatusResponse;
 import com.svi.tictactoe.service.RoomService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/rooms")
+@RequestMapping("/api/v1/rooms")
 public class RoomController {
 
     private final RoomService roomService;
@@ -24,11 +24,10 @@ public class RoomController {
         this.roomService = roomService;
     }
 
-    @PostMapping ("/{roomCode}")
-    public ResponseEntity<RoomResponse> createRoom(@PathVariable String roomCode, @Valid @RequestBody CreateRoomRequest request) {
+    @PostMapping
+    public ResponseEntity<RoomResponse> createRoom(@Valid @RequestBody CreateRoomRequest request) {
 
-        RoomResponse response = roomService.createRoom(roomCode, request);
-
+        RoomResponse response = roomService.createRoom(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
