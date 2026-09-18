@@ -321,6 +321,20 @@
       "item": [
         {
           "name": "CREATE GAME",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "pm.collectionVariables.set(\"gameId\", response.gameId);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -503,7 +517,21 @@
       "name": "Player",
       "item": [
         {
-          "name": "CREATE PLAYER",
+          "name": "CREATE PLAYER X",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "pm.collectionVariables.set(\"playerXId\", response.playerId);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -517,16 +545,111 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/api/v1/players",
-              "protocol": "http",
+              "raw": "{{baseURL}}/players",
               "host": [
-                "localhost"
+                "{{baseURL}}"
               ],
-              "port": "8080",
               "path": [
-                "api",
-                "v1",
                 "players"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CREATE PLAYER O",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "pm.collectionVariables.set(\"playerOId\", response.playerId);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/players",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "players"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CREATE PLAYER 3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "pm.collectionVariables.set(\"player3Id\", response.playerId);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/players",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "players"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PLAYER GAMES",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/players/{{playerXId}}/games",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "players",
+                "{{playerXId}}",
+                "games"
               ]
             }
           },
@@ -575,6 +698,30 @@
       ]
     }
   ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
   "variable": [
     {
       "key": "playerXId",
@@ -594,15 +741,15 @@
     },
     {
       "key": "baseURL",
-      "value": ""
+      "value": "http://localhost:8080/api/v1"
     },
     {
       "key": "roomCode",
-      "value": ""
+      "value": "ROOM01"
     },
     {
       "key": "invalidRoomCode",
-      "value": ""
+      "value": "INVALID@"
     },
     {
       "key": "gameId",
@@ -610,7 +757,7 @@
     },
     {
       "key": "position",
-      "value": ""
+      "value": "0"
     }
   ]
 }
