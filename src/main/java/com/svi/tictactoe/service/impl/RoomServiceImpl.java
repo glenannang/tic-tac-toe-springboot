@@ -75,7 +75,7 @@ public class RoomServiceImpl implements RoomService {
         room.setHostPlayerId(request.getPlayerId());
         room.setStatus(RoomStatus.WAITING);
 
-        room.setUpdatedAt(Instant.now());
+        room.setUpdatedAt(now);
 
         roomRepository.save(room);
 
