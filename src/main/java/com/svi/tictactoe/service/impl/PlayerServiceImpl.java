@@ -41,19 +41,14 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public void validatePlayerExists(UUID playerId) {
-        if (!playerRepository.existsById(playerId)) {
-            throw new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage());
-        }
+        getPlayer(playerId);
     }
 
     @Override
     public void recordWinAndLoss(UUID winnerId, UUID loserId) {
 
-        Player winner = playerRepository.findById(winnerId).orElseThrow(() ->
-                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
-
-        Player loser = playerRepository.findById(loserId).orElseThrow(() ->
-                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
+        Player winner = getPlayer(winnerId);
+        Player loser = getPlayer(loserId);
 
         winner.setWins(winner.getWins() + 1);
         loser.setLosses(loser.getLosses() + 1);
@@ -64,12 +59,8 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public void recordDraw(UUID playerXId, UUID playerOId) {
-
-        Player playerX = playerRepository.findById(playerXId).orElseThrow(() ->
-                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
-
-        Player playerO = playerRepository.findById(playerOId).orElseThrow(() ->
-                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
+        Player playerX = getPlayer(playerXId);
+        Player playerO = getPlayer(playerOId);
 
         playerX.setDraws(playerX.getDraws() + 1);
         playerO.setDraws(playerO.getDraws() + 1);
@@ -81,21 +72,15 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public void recordGamePlayed(UUID playerId) {
 
-        Player player = playerRepository.findById(playerId).orElseThrow(() ->
-                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
-
+        Player player = getPlayer(playerId);
         player.setGamesPlayed(player.getGamesPlayed() + 1);
         playerRepository.save(player);
     }
 
     @Override
     public void recordIncompleteGame(UUID playerXId, UUID playerOId) {
-
-        Player playerX = playerRepository.findById(playerXId).orElseThrow(() ->
-                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
-
-        Player playerO = playerRepository.findById(playerOId)
-                .orElseThrow(() -> new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
+        Player playerX = getPlayer(playerXId);
+        Player playerO = getPlayer(playerOId);
 
         playerX.setIncompleteGames(playerX.getIncompleteGames() + 1);
         playerO.setIncompleteGames(playerO.getIncompleteGames() + 1);
@@ -104,10 +89,9 @@ public class PlayerServiceImpl implements PlayerService {
         playerRepository.save(playerO);
     }
 
-
-
-
-
-
+    private Player getPlayer(UUID playerId) {
+        return playerRepository.findById(playerId).orElseThrow(() ->
+                        new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
+    }
 
 }

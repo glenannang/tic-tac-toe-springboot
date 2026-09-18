@@ -34,21 +34,16 @@ public class RoomServiceImpl implements RoomService {
     private final RoomMapper roomMapper;
     private final GameService gameService;
     private final PlayerService playerService;
-    private final PlayerGameRepository playerGameRepository;
-    private final GameRepository gameRepository;
+
 
     public RoomServiceImpl(RoomRepository roomRepository,
                            GameService gameService,
                            PlayerService playerService,
-                           RoomMapper roomMapper,
-                           PlayerGameRepository playerGameRepository,
-                           GameRepository gameRepository) {
+                           RoomMapper roomMapper) {
         this.roomRepository = roomRepository;
         this.roomMapper = roomMapper;
         this.gameService= gameService;
         this.playerService=playerService;
-        this.playerGameRepository = playerGameRepository;
-        this.gameRepository = gameRepository;
     }
 
     @Override
@@ -202,20 +197,7 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.save(room);
 
         // create a new game
-        UUID newGameId = UUID.randomUUID();
-
-        Game newGame = new Game();
-
-        newGame.setGameId(newGameId);
-        newGame.setRoomCode(roomCode);
-        newGame.setPlayerXId(room.getHostPlayerId());
-        newGame.setPlayerOId(room.getGuestPlayerId());
-        newGame.setStatus(GameStatus.IN_PROGRESS);
-        newGame.setCreatedAt(Instant.now());
-
-        Game savedGame = gameRepository.save(newGame);
-
-        savePlayerGames(savedGame);
+        Game newGame = gameService.createGameRecord(roomCode, room.getHostPlayerId(), room.getGuestPlayerId());
 
         //add new room object
         RoomKey newRoomKey = new RoomKey();
@@ -227,58 +209,13 @@ public class RoomServiceImpl implements RoomService {
         newRoom.setKey(newRoomKey);
         newRoom.setHostPlayerId(room.getHostPlayerId());
         newRoom.setGuestPlayerId(room.getGuestPlayerId());
-        newRoom.setGameId(newGameId);
+        newRoom.setGameId(newGame.getGameId());
         newRoom.setStatus(RoomStatus.IN_GAME);
         newRoom.setHostRematch(false);
         newRoom.setGuestRematch(false);
         newRoom.setUpdatedAt(Instant.now());
 
         roomRepository.save(newRoom);
-        return roomMapper.toRematchResponse(SuccessMessages.REMATCH_STARTED.getMessage(), RoomStatus.IN_GAME, newGameId);
+        return roomMapper.toRematchResponse(SuccessMessages.REMATCH_STARTED.getMessage(), RoomStatus.IN_GAME, newGame.getGameId());
     }
-
-
-    //HELPER METHODS
-
-    private void updatePlayerGameResultsForIncomplete(Game game) {
-
-        PlayerGameKey playerXKey = new PlayerGameKey();
-        playerXKey.setPlayerId(game.getPlayerXId());
-        playerXKey.setGameId(game.getGameId());
-
-        PlayerGame playerXGame = playerGameRepository.findById(playerXKey).orElseThrow();
-
-        PlayerGameKey playerOKey = new PlayerGameKey();
-        playerOKey.setPlayerId(game.getPlayerOId());
-        playerOKey.setGameId(game.getGameId());
-
-        PlayerGame playerOGame = playerGameRepository.findById(playerOKey).orElseThrow();
-
-        playerXGame.setResult(PlayerGameResult.INCOMPLETE.name());
-        playerOGame.setResult(PlayerGameResult.INCOMPLETE.name());
-
-        playerGameRepository.save(playerXGame);
-        playerGameRepository.save(playerOGame);
-    }
-
-    private void savePlayerGames(Game game) {
-
-        PlayerGameKey playerXKey = new PlayerGameKey();
-        playerXKey.setPlayerId(game.getPlayerXId());
-        playerXKey.setGameId(game.getGameId());
-
-        PlayerGame playerXGame = new PlayerGame();
-        playerXGame.setKey(playerXKey);
-
-        PlayerGameKey playerOKey = new PlayerGameKey();
-        playerOKey.setPlayerId(game.getPlayerOId());
-        playerOKey.setGameId(game.getGameId());
-
-        PlayerGame playerOGame = new PlayerGame();
-        playerOGame.setKey(playerOKey);
-
-        playerGameRepository.save(playerXGame);
-        playerGameRepository.save(playerOGame);
-    }
-
 }

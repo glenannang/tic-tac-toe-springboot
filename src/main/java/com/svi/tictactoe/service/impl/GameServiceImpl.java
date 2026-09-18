@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -71,23 +70,10 @@ public class GameServiceImpl implements GameService {
         if (room.getStatus() == RoomStatus.REMATCH) {throw new RoomUnavailableException(ErrorMessages.CANNOT_CREATE_GAME_ROOM_WAITING_FOR_REMATCH.getMessage());}
         if (room.getStatus() == RoomStatus.WAITING) {throw new RoomUnavailableException(ErrorMessages.CANNOT_CREATE_GAME_WAITING_FOR_PLAYER.getMessage());}
 
-        UUID gameId = UUID.randomUUID();
-        Game game = new Game();
-
-        game.setGameId(gameId);
-        game.setRoomCode(request.getRoomCode());
-        game.setPlayerXId(room.getHostPlayerId());
-        game.setPlayerOId(room.getGuestPlayerId());
-        game.setStatus(GameStatus.IN_PROGRESS);
-        game.setCreatedAt(Instant.now());
-
-        Game savedGame = gameRepository.save(game);
-
-        // Add game record for both players
-        savePlayerGames(savedGame);
+        Game savedGame = createGameRecord(request.getRoomCode(), room.getHostPlayerId(), room.getGuestPlayerId());
 
         //update room record
-        room.setGameId(gameId);
+        room.setGameId(savedGame.getGameId());
         room.setStatus(RoomStatus.IN_GAME);
         room.setUpdatedAt(Instant.now());
 
@@ -96,6 +82,26 @@ public class GameServiceImpl implements GameService {
         return gameMapper.toCreateGameResponse(savedGame, SuccessMessages.GAME_CREATED_SUCCESSFULLY.getMessage());
     }
 
+    @Override
+    public Game createGameRecord(String roomCode, UUID playerXId, UUID playerOId) {
+
+        Game game = new Game();
+
+        game.setGameId(UUID.randomUUID());
+        game.setRoomCode(roomCode);
+        game.setPlayerXId(playerXId);
+        game.setPlayerOId(playerOId);
+        game.setStatus(GameStatus.IN_PROGRESS);
+        game.setCreatedAt(Instant.now());
+
+        Game savedGame = gameRepository.save(game);
+
+        savePlayerGames(savedGame);
+
+        return savedGame;
+    }
+
+    @Override
     public AddMoveResponse addMove(UUID gameId, AddMoveRequest request){
 
         playerService.validatePlayerExists(request.getPlayerId());
@@ -129,7 +135,6 @@ public class GameServiceImpl implements GameService {
         int moveNumber = existingMoves.size();
 
         // check if the move cause a win/draw
-
         if (gameEngine.hasWon(existingMoves, symbol)) {
             game.setStatus(GameStatus.FINISHED);
             game.setResult(GameResult.WIN);
@@ -234,14 +239,15 @@ public class GameServiceImpl implements GameService {
     }
 
 
-
     // HELPER FUNCTIONS FOR VALIDATING A MOVE REQUEST
 
     //check if player belongs to the game
     private void validatePlayer(Game game, UUID playerId) {
+
         if (!playerId.equals(game.getPlayerXId()) && !playerId.equals(game.getPlayerOId())) {
             throw new PlayerNotInGameException(ErrorMessages.PLAYER_NOT_IN_GAME.getMessage());
         }
+
     }
 
     //check if game is still on going
@@ -261,16 +267,18 @@ public class GameServiceImpl implements GameService {
                 throw new PositionAlreadyTakenException(ErrorMessages.POSITION_ALREADY_TAKEN.getMessage());
             }
         }
+
     }
 
     //check if the turn is valid
     private void validateTurn(Game game, UUID playerId, List<Move> existingMoves) {
-
         // First move is always Player X
         if (existingMoves.isEmpty()) {
+
             if (!playerId.equals(game.getPlayerXId())) {
                 throw new InvalidTurnException(ErrorMessages.PLAYER_X_TURN.getMessage());
             }
+
             return;
         }
 
@@ -278,13 +286,18 @@ public class GameServiceImpl implements GameService {
         UUID expectedPlayerId;
 
         if (lastMove.getPlayerId().equals(game.getPlayerXId())) {
+
             expectedPlayerId = game.getPlayerOId();  //  O's turn if last move belongs to player with x symbol
         } else {
+
             expectedPlayerId = game.getPlayerXId();
+
         }
 
         if (!playerId.equals(expectedPlayerId)) {
+
             throw new InvalidTurnException(ErrorMessages.NOT_THIS_PLAYERS_TURN.getMessage());
+
         }
     }
 
@@ -321,6 +334,16 @@ public class GameServiceImpl implements GameService {
         playerGameRepository.save(playerOGame);
     }
 
+    private PlayerGame getPlayerGame(UUID playerId, UUID gameId) {
+
+        PlayerGameKey key = new PlayerGameKey();
+        key.setPlayerId(playerId);
+        key.setGameId(gameId);
+
+        return playerGameRepository.findById(key).orElseThrow();
+    }
+
+
     private void updatePlayerGameResults(Game game, UUID winnerId) {
 
         PlayerGameKey winnerKey = new PlayerGameKey();
@@ -346,17 +369,8 @@ public class GameServiceImpl implements GameService {
 
     private void updatePlayerGameResultsForDraw(Game game) {
 
-        PlayerGameKey playerXKey = new PlayerGameKey();
-        playerXKey.setPlayerId(game.getPlayerXId());
-        playerXKey.setGameId(game.getGameId());
-
-        PlayerGame playerXGame = playerGameRepository.findById(playerXKey).orElseThrow();
-
-        PlayerGameKey playerOKey = new PlayerGameKey();
-        playerOKey.setPlayerId(game.getPlayerOId());
-        playerOKey.setGameId(game.getGameId());
-
-        PlayerGame playerOGame = playerGameRepository.findById(playerOKey).orElseThrow();
+        PlayerGame playerXGame = getPlayerGame(game.getPlayerXId(), game.getGameId());
+        PlayerGame playerOGame = getPlayerGame(game.getPlayerOId(), game.getGameId());
 
         playerXGame.setResult(PlayerGameResult.DRAW.name());
         playerOGame.setResult(PlayerGameResult.DRAW.name());
@@ -367,17 +381,8 @@ public class GameServiceImpl implements GameService {
 
     private void updatePlayerGameResultsForIncomplete(Game game) {
 
-        PlayerGameKey playerXKey = new PlayerGameKey();
-        playerXKey.setPlayerId(game.getPlayerXId());
-        playerXKey.setGameId(game.getGameId());
-
-        PlayerGame playerXGame = playerGameRepository.findById(playerXKey).orElseThrow();
-
-        PlayerGameKey playerOKey = new PlayerGameKey();
-        playerOKey.setPlayerId(game.getPlayerOId());
-        playerOKey.setGameId(game.getGameId());
-
-        PlayerGame playerOGame = playerGameRepository.findById(playerOKey).orElseThrow();
+        PlayerGame playerXGame = getPlayerGame(game.getPlayerXId(), game.getGameId());
+        PlayerGame playerOGame = getPlayerGame(game.getPlayerOId(), game.getGameId());
 
         playerXGame.setResult(PlayerGameResult.INCOMPLETE.name());
         playerOGame.setResult(PlayerGameResult.INCOMPLETE.name());
