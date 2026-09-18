@@ -28,8 +28,8 @@ public class LeaderboardController {
     }
 
     @GetMapping("/{playerId}")
-    public ResponseEntity<PlayerRankResponse> getPlayerRank(@PathVariable UUID playerId) {
-        PlayerRankResponse response = leaderboardService.getPlayerRank(playerId);
+    public ResponseEntity<PlayerRankResponse> getPlayerStatsandRank(@PathVariable UUID playerId) {
+        PlayerRankResponse response = leaderboardService.getPlayerStatsandRank(playerId);
         return ResponseEntity.ok(response);
     }
 

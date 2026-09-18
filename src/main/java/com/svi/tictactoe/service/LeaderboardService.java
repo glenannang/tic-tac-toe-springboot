@@ -8,6 +8,6 @@ import java.util.UUID;
 public interface LeaderboardService {
 
     LeaderboardResponse getLeaderboard();
-    PlayerRankResponse getPlayerRank(UUID playerId);
+    PlayerRankResponse getPlayerStatsandRank(UUID playerId);
 
 }

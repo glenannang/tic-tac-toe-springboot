@@ -56,7 +56,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
     }
 
     @Override
-    public PlayerRankResponse getPlayerRank(UUID playerId) {
+    public PlayerRankResponse getPlayerStatsandRank(UUID playerId) {
 
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new PlayerDoesNotExistException(ErrorMessages.PLAYER_NOT_FOUND.getMessage()));
