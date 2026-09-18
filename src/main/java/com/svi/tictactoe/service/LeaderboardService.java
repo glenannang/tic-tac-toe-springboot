@@ -1,7 +1,7 @@
 package com.svi.tictactoe.service;
 
 import com.svi.tictactoe.dto.response.leaderboard.LeaderboardResponse;
-import com.svi.tictactoe.dto.response.player.PlayerRankResponse;
+import com.svi.tictactoe.dto.response.leaderboard.PlayerRankResponse;
 
 import java.util.UUID;
 

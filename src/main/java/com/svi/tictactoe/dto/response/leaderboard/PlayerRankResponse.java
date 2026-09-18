@@ -1,4 +1,4 @@
-package com.svi.tictactoe.dto.response.player;
+package com.svi.tictactoe.dto.response.leaderboard;
 
 import java.util.UUID;
 

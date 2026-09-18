@@ -1,7 +1,7 @@
 package com.svi.tictactoe.controller;
 
 import com.svi.tictactoe.dto.response.leaderboard.LeaderboardResponse;
-import com.svi.tictactoe.dto.response.player.PlayerRankResponse;
+import com.svi.tictactoe.dto.response.leaderboard.PlayerRankResponse;
 import com.svi.tictactoe.service.LeaderboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

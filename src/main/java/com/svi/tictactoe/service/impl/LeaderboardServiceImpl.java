@@ -3,7 +3,7 @@ package com.svi.tictactoe.service.impl;
 import com.svi.tictactoe.constant.ErrorMessages;
 import com.svi.tictactoe.dto.response.leaderboard.LeaderboardEntryResponse;
 import com.svi.tictactoe.dto.response.leaderboard.LeaderboardResponse;
-import com.svi.tictactoe.dto.response.player.PlayerRankResponse;
+import com.svi.tictactoe.dto.response.leaderboard.PlayerRankResponse;
 import com.svi.tictactoe.entity.Player;
 import com.svi.tictactoe.exception.player.PlayerDoesNotExistException;
 import com.svi.tictactoe.mapper.LeaderboardMapper;
